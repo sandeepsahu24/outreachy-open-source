@@ -1,0 +1,21 @@
+{% with community=participation.community current_round=participation.participating_round %}
+{{ community.name }} is participating in Outreachy!
+
+Hi {{ recipient.display_name }},
+
+The Outreachy organizers have approved {{ community.name }} to participate in the current round of Outreachy!
+
+The community coordinator can edit community information (description, funding, etc) here:
+
+{{ request.scheme }}://{{ request.get_host }}{{ community.get_preview_url }}
+
+Each mentor will need to submit their project proposals through the Outreachy website. You cannot list projects on an external page.
+
+{% include 'home/email/snippet-volunteer-participation-approved.txt' %}
+
+Thank you for volunteering to help {{ community.name }} participate in Outreachy!
+
+Outreachy Organizers
+
+{% include 'home/email/footer-coordinator.txt' %}
+{% endwith %}

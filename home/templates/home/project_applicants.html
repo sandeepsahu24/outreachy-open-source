@@ -1,0 +1,345 @@
+{% extends "base.html" %}
+
+{% block title %}
+Review Project Applicants
+{% endblock %}
+
+{% block content %}
+<h1>Review Project Applicants</h1>
+
+<p>Project: {{ project.short_title }}</p>
+
+{% include 'home/snippet/project_promotion.html' %}
+
+<h2>Applicant Eligibility</h2>
+<p>
+The Outreachy organizers have reviewed and approved the initial applications of all applicants on this page. In some cases, their time commitments may be borderline (e.g. just above the number of consecutive days free from full-time commitments). Please review the time commitments section carefully.
+</p>
+
+<p>
+In order for mentors to accept an applicant as an intern,
+that applicant must record at least one contribution to your project
+through the Outreachy website, and submit a final application.
+</p>
+
+<p>
+The final application will include a timeline of the work to be done during the
+internship, and it's expected that applicants will work with mentors to define
+that timeline, taking into account any time commitments the applicant has.
+</p>
+
+{% with finalapps=project.get_sorted_applications %}
+	{% if finalapps %}
+		<h2 id="rating">Applicant Ratings</h2>
+		<p>Please note that only mentors for this project can change applicant ratings or select interns.</p>
+		<p>The deadline for selecting an intern is {{ current_round.mentor_intern_selection_deadline }} at 4pm UTC. Once mentors select their interns, the community coordinator will need to assign funding sources. The Outreachy organizers will then approve the intern selection and funding source.</p>
+		<p>Do not communicate your intern selection choices to applicants until after the interns are announced on {{ current_round.internannounce }} at 4pm UTC on the <a href="/alums/">alums page</a></p>
+		<form method="post">
+		{% csrf_token %}
+		<table class="table table-striped">
+			<thead>
+				<tr>
+					<th scope="col">Rating</th>
+					{% if approved_mentor %}<th scope="col">Change Rating</th>{% endif %}
+					<th scope="col">Applicant</th>
+					<th scope="col">Applicant Info</th>
+					<th scope="col">Intern Selection Status</th>
+					<th scope="col">Intern Mentors</th>
+					<th scope="col">Selected by Another Project?</th>
+					{% if is_staff %}<th scope="col">Time commitment updates?</th>{% endif %}
+				</tr>
+			</thead>
+			<tbody>
+			{% for fa in finalapps %}
+				<tr>
+					<td>{% if fa.rating == fa.UNRATED %}Unrated{% else %}<abbr title="{{ fa.get_rating_display }}">{{ fa.rating }}</abbr>{% endif %}</td>
+					{% if approved_mentor %}<td>
+						<div class="dropdown">
+							<button class="btn btn-secondary dropdown-toggle" type="button" id="InternRatingMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Applicant Rating</button>
+							<div class="dropdown-menu" aria-labelledby="InternRatingMenu">
+								{% for choice in fa.RATING_CHOICES %}
+								<button class="dropdown-item" formaction="{% url 'application-rate' round_slug=current_round.slug community_slug=community.slug project_slug=project.slug username=fa.applicant.applicant.account.username rating=choice.0 %}">{{ choice.1 }}</button>
+				<p><a href="{{ project.get_contributions_url }}">
+								{% endfor %}
+							</div>
+						</div>
+					</td>{% endif %}
+					<td>"{{ fa.applicant.applicant.public_name }}" &lt;{{ fa.applicant.applicant.account.email }}&gt; </td>
+					<td><a href="#{{ fa.applicant.applicant.pk }}">(details)</a></td>
+					<td>
+						{% with selection=fa.get_intern_selection %}
+						<p>
+						{% if not selection %}
+							Not selected</p>
+						{% elif not selection.mentors.all %}
+							Applicant was selected by a mentor, but all mentors have resigned from the internship.</p><p>Applicant will not be shown in the accepted interns list until they have a mentor.</p>
+							{% if approved_mentor %}<a href="{% url 'remove-intern' round_slug=current_round.slug community_slug=community.slug project_slug=project.slug applicant_username=fa.applicant.applicant.account.username %}"><input class="btn btn-danger" value="Remove Intern" />{% endif %}
+						{% else %}
+							Intern selected by mentor</p>
+								<ul>
+									<li>Coordinator funding decision: {{ selection.get_funding_source_display }}</li>
+									<li>{% if selection.organizer_approved %}Intern approved{% else %}Intern pending organizer approval{% endif %}</li>
+								</ul>
+								{% if approved_mentor %}<a href="{% url 'remove-intern' round_slug=current_round.slug community_slug=community.slug project_slug=project.slug applicant_username=fa.applicant.applicant.account.username %}"><input class="btn btn-danger" value="Remove Intern" />{% endif %}
+						{% endif %}
+						{% endwith %}
+					</td>
+					<td>
+						{% with selection=fa.get_intern_selection %}
+							{% if selection %}<p>{% for m in selection.mentors.all %}{{ m.mentor.public_name }}{% if not forloop.last %}, {% endif %}{% endfor %}<br>{% elif not approved_mentor %} - {% endif %}</p>
+							{% if approved_mentor %}
+								{% if not selection %}
+									<a href="{{ fa.get_mentor_agreement_url }}"><input class="btn btn-success" value="Mentor Intern" />
+								{% elif not mentor_approval in selection.mentors.all %}
+									<a href="{{ fa.get_mentor_agreement_url }}"><input class="btn btn-success" value="Co-mentor Intern" />
+								{% else %}
+									<p>You signed the mentor agreement.</p>
+									<a href="{% url 'resign-as-mentor' round_slug=current_round.slug community_slug=community.slug project_slug=project.slug applicant_username=fa.applicant.applicant.account.username %}"><input class="btn btn-warning" value="Resign as Mentor" />
+								{% endif %}
+							{% endif %}
+						{% endwith %}
+					</td>
+					<td>
+						{% with conflicts=fa.get_intern_selection_conflicts %}
+						{% if conflicts %}
+						<ul>
+							{% for conflict in conflicts %}
+								<li>{{ conflict.project.project_round.community.name }}
+									<a href="{{ conflict.project.get_applicants_url }}#{{ intern.applicant.applicant.pk }}">(details)</a>
+							{% endfor %}
+						</ul>
+						{% endif %}
+						{% endwith %}
+					</td>
+					{% if is_staff %}<td>{% if not fa.time_correct or fa.time_updates %}Yes{% else %} - {% endif %}</td>{% endif %}
+				</tr>
+				{% with intern=fa.get_intern_selection conflicts=fa.get_intern_selection.get_intern_selection_conflicts %}
+				{% if conflicts %}
+				<tr>
+					<td colspan=6>
+						{% include 'home/snippet/intern_selection_conflict.html' %}
+					</td>
+				</tr>
+				{% endif %}
+				{% endwith %}
+			{% endfor %}
+			</tbody>
+		</table>
+		</form>
+	{% elif current_round.contributions_close.has_passed %}
+		<div class="card border-warning mb-3">
+			<div class="card-header text-white bg-warning">No Interns Available</div>
+			<div class="card-body">
+				<p class="card-text">
+				None of the applicants for this project created an application, and the final application deadline has passed. You cannot select an intern who has not created an application.
+				</p>
+			</div>
+		</div>
+	{% endif %}
+{% endwith %}
+
+<h2>Applicant Details</h2>
+<hr>
+
+{% if contributions %}
+	{% regroup contributions by applicant as applicants %}
+	{% for application, applicant_contributions in applicants %}
+		{% with tcs=application.get_time_commitments applicant=application.applicant final_application=applicant_contributions.0.get_application %}
+		<h3 id="{{ applicant.pk }}">{{ applicant.public_name }} - Personal info</h3>
+		{% if final_application and final_application.is_withdrawn %}
+			<div class="card border-warning mb-3">
+				<div class="card-header text-white bg-warning">Withdrawn Application</div>
+				<div class="card-body">
+					<p class="card-text">
+					This application is withdrawn. Mentors will not be able to accept this applicant as an intern for this project.
+					{% if final_application.reason_denied %}
+					The reason the applicant gave for withdrawing their application was:
+					</p>
+					<p>{{ final_application.reason_denied }}</p>
+					{% endif %}
+				</div>
+			</div>
+		{% endif %}
+
+		{% if user.is_staff %}
+			{% include 'home/snippet/time_commitment_overview.html' %}
+			{% with final_application=applicant_contributions.0.get_application %}
+				{% if final_application %}
+					{% if not final_application.time_correct or final_application.time_updates %}
+						<div class="card border-warning mb-3">
+							<div class="card-header text-white bg-warning">Incorrect Time Commitments</div>
+							<div class="card-body">
+								<p class="card-text">The applicant wants to update their time commitments with the following information:</p>
+								<p class="card-text"><pre>{% if final_application.time_correct %}Yes, my time commitments are correct. {% else %}No, my time commitments are incorrect. {% endif %}{{ final_application.time_updates }}</pre></p>
+							</div>
+						</div>
+					{% else %}
+						<div class="card border-success mb-3">
+							<div class="card-header text-white bg-success">Time Commitments Up-To-Date</div>
+							<div class="card-body">
+							<p class="card-text">Applicant says: <pre>"{% if final_application.time_correct %}Yes, my time commitments are correct.{% else %}No, my time commitments are incorrect. {% endif %}{{ final_application.time_updates }}"</pre></p>
+							</div>
+						</div>
+						<p>
+					{% endif %}
+				{% endif %}
+			{% endwith %}
+		{% else %}
+			{% include 'home/snippet/time_commitment_overview_for_mentor.html' %}
+		{% endif %}
+		
+		<p>Contact Information:</p>
+		<ul>
+			<li>"{{ applicant.public_name }}" &lt;{{ applicant.account.email }}&gt;</li>
+			{% if applicant.nick %}<li>Forum, chat, or IRC username: {{ applicant.nick }}</li>{% endif %}
+			{% if applicant.github_url %}<li>GitHub profile: <a href="{{ applicant.github_url }}">{{ applicant.github_url }}</a></li>{% endif %}
+			{% if applicant.gitlab_url %}<li>GitLab profile: <a href="{{ applicant.gitlab_url }}">{{ applicant.gitlab_url }}</a></li>{% endif %}
+		</ul>
+		<p>Personal Information:</p>
+		<ul>
+			{% if applicant.timezone %}<li>Timezone: {{ applicant.timezone }}</li>{% endif %}
+			{% if applicant.location %}<li>Location: {{ applicant.location }}</li>{% endif %}
+			{% if applicant.pronouns_to_participants %}
+				<li>Pronouns: {{ applicant.get_pronouns_html|safe }}</li>
+				{% if not applicant.pronouns_public %}
+					<li><strong>This applicant has requested that their preferred pronouns not be used in public.</strong>
+					You may use the above pronouns in private emails when discussing the applicant
+					with your community coordinator and other mentors on your project.
+					Please use gender-neutral they/them pronouns when referring to the applicant on the public communication channels.
+					If you feel you cannot context switch between pronouns, then always use gender neutral they/them pronouns.
+					Examples of how to use they/them pronouns are <a href="http://pronoun.is/they">here</a>.
+					</li>
+				{% else %}
+					<li>You may use the applicant's preferred pronouns when talking about them on public communication channels.</li>
+				{% endif %}
+			{% endif %}
+		</ul>
+		<hr>
+		<h3>{{ applicant.public_name }} - Contributions</h3>
+		{% for c in applicant_contributions %}
+			<div class="card mb-3">
+				<div class="card-header">Contribution #{{ forloop.counter }}</div>
+				<div class="card-body">
+					<p class="card-text"><i>Date:</i> Started {{ c.date_started }}</p>
+					<p class="card-text"><i>Status:</i> {% if c.date_merged %}Merged on {{ c.date_merged }}{% else %}Not accepted or merged{% endif %}</p>
+					<p class="card-text"><i>URL:</i> <a href="{{ c.url }}">{{ c.url }}</a></p>
+					<p class="card-text"><i>Description:</i></p>
+					<p class="card-text">{{ c.description|linebreaksbr }}</p>
+				</div>
+			</div>
+		{% endfor %}
+		<hr>
+		<h3>{{ applicant.public_name }} - Final Application</h3>
+
+		{% with final_application=applicant_contributions.0.get_application %}
+			{% if final_application %}
+				{% if user.is_staff and final_application.spread_the_word != final_application.OTHER %}
+					<p><i>(Organizers only) Applicant found out about Outreachy:</i></p>
+					<p>{{ final_application.get_spread_the_word_display }}</p>
+				{% endif %}
+				<div class="card mb-3">
+					<div class="card-header">Past experience with this free software community</div>
+					<div class="card-body">
+						<p class="card-text">{{ final_application.experience|linebreaksbr }}</p>
+					</div>
+				</div>
+				
+				<div class="card mb-3">
+					<div class="card-header">Past experience with other free software communities</div>
+					<div class="card-body">
+						<p class="card-text">{{ final_application.foss_experience|linebreaksbr }}</p>
+					</div>
+				</div>
+			
+				<div class="card mb-3">
+					<div class="card-header">Relevant personal or class projects</div>
+					<div class="card-body">
+						<p class="card-text">{{ final_application.relevant_projects|linebreaksbr }}</p>
+					</div>
+				</div>
+				<div class="card mb-3">
+					<div class="card-header">Community-specific questions</div>
+					<div class="card-body">
+						{% if final_application.community_specific_questions %}
+						<p class="card-text">{{ final_application.community_specific_questions|linebreaksbr }}</p>
+						{% else %}
+						<p class="card-text"><i>Applicant has not provided answers to community-specific questions.</i></p>
+						{% endif %}
+					</div>
+				</div>
+			
+				<div class="card mb-3">
+					{% if final_application.applying_to_gsoc %}
+						<div class="card-header text-white bg-warning">Google Summer of Code application information</div>
+						<div class="card-body">
+							<p class="card-text">
+							<i><b>Warning:</b> 
+							This applicant may be applying for Google Summer of Code (GSoC).
+							Please review their answers below to determine if they are applying.
+							</i>
+							</p>
+
+							<p class="card-text">
+							<i>
+							If the intern is applying to both GSoC and Outreachy,
+							Outreachy organizers will be in touch with the GSoC mentors and the Outreachy mentors.
+							We will work to determine whether this student should be accepted for Outreachy or GSoC.
+							</i>
+							</p>
+							<p class="card-text"><i>Applicant provided GSoC information:</i></p>
+							<p class="card-text">
+							{{ final_application.applying_to_gsoc|linebreaksbr }}</p>
+						</div>
+					{% else %}
+						<div class="card-header">Google Summer of Code application information</div>
+						<div class="card-body">
+							<p class="card-text"><i>Applicant is not applying to Google Summer of Code.</i></p>
+						</div>
+					{% endif %}
+				</div>
+			
+				<div class="card mb-3">
+					<div class="card-header">Internship project timeline</div>
+					<div class="card-body">
+						<p class="card-text">
+						
+						{% if final_application.timeline %}
+							{{ final_application.timeline|linebreaksbr }}
+						{% else %}
+							<i>Applicant has not provided an internship project timeline</i>
+						{% endif %}
+						</p>
+					</div>
+				</div>
+			{% else %}
+				<div class="card mb-3">
+					<div class="card-header text-white bg-warning">No final application submitted</div>
+					<div class="card-body">
+						<p class="card-text">
+						<i>This applicant has not submitted a final application for your project.</i>
+						</p>
+						<p class="card-text">
+						You cannot select them as an intern unless they submit an application.
+						</p>
+						<p class="card-text">
+						Please remind this applicant to submit an application at this URL:
+						</p>
+
+						<p class="card-text">
+						{{ request.scheme }}://{{ request.get_host }}{{ project.get_contributions_url }}
+						</p>
+					</div>
+				</div>
+				<p>
+			{% endif %}
+		{% endwith %}
+
+		{% endwith %}
+	{% endfor %}
+{% else %}
+	<p>No applicant has recorded a contribution to your project.
+	If applicants have in-progress contributions, remind them to
+	record their contributions at this URL:
+	<br>{{ request.scheme }}://{{ request.get_host }}{{ project.get_contributions_url }}</p>
+{% endif %}
+{% endblock %}

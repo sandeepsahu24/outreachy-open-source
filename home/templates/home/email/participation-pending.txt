@@ -1,0 +1,28 @@
+{% with community=participation.community current_round=participation.participating_round %}
+Approve community participation - {{ community.name }}
+
+Hi {{ recipient.display_name }},
+
+Please review and approve this community to participate in the {{ current_round.internstarts|date:"F" }} to {{ current_round.internends|date:"F Y" }} Outreachy internship round.
+
+Community: {{ community.name }}
+Coordinator(s): {% for addr in community.get_coordinator_email_list %}{{ addr }}{% if not forloop.last %}, {% endif %}{% endfor %}
+Number of interns funded: {{ participation.interns_funded }}
+Funding details:
+{{ participation.intern_funding_details }}
+
+{% if community.humanitarian_community %}This is a Humanitarian open source community.{% else %}Not a humanitarian community{% endif %}{% if community.general_funding_application %}
+Humanitarian issues the community addresses: {{ community.general_funding_application }}{% endif %}{% if community.additional_sponsors %}
+Community sponsors Outreachy might want to ask for internship funding: {{ community.additional_sponsors }}{% endif %}
+
+Approve This Community
+----------------------
+
+You can approve this by going to the community page, looking under the "Coordinator Actions" section, and clicking 'Approve community':
+
+{{ request.scheme }}://{{ request.get_host }}{{ community.get_preview_url }}
+
+Thank you!
+
+This mail is an automated email sent from the Outreachy Django website
+{% endwith %}

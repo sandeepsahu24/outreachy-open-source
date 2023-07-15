@@ -1,0 +1,244 @@
+{% extends "base.html" %}
+
+{% block title %}
+{% if not current_round.contributions_close.has_passed %}
+	Record Contributions and Apply to {{ community.name }}
+{% else %}
+	{% if final_application and not project.round.internannounce.has_passed %}
+		Record Contributions and View Application to {{ community.name }}
+	{% else %}
+		View Contributions to {{ community.name }}
+	{% endif %}
+{% endif %}
+{% endblock %}
+
+{% block content %}
+
+{% include "home/snippet/eligibility_prompts.html" %}
+
+<p><a href="/apply/">Why apply to Outreachy?</a>
+&gt; <a href="/apply/eligibility/">Outreachy Eligibility Rules</a>
+&gt; <a href="/apply/project-selection/">Find a Mentor and Internship Project</a>
+&gt; <a href="{{ project.project_round.get_absolute_url }}">{{ community.name }}</a>
+{% if not current_round.contributions_close.has_passed %}
+	&gt; Record a Contribution and Apply</p>
+{% else %}
+	{% if final_application and not project.round.internannounce.has_passed %}
+		&gt; Record Contributions and View Application
+	{% else %}
+		&gt; View Contributions
+	{% endif %}
+{% endif %}
+
+{% if not current_round.contributions_close.has_passed %}
+	<h1>Record Contributions and Apply to {{ community.name }}</h1>
+	<p>You're recording contributions and applying to the following project:</p>
+	<p><strong>{{ project.short_title }}</strong></p>
+	<p>
+	All applicants must work with a mentor to make a contribution to a project.
+	This page allows you to record a description and link to that contribution.
+	You can record new contributions or edit recorded contributions until the final application deadline.
+	</p>
+
+	<p>
+	Only applicants that submit a final application will be eligible to be selected as an intern.
+	You need to submit a final application for each project you want to apply to.
+	You'll need to record one contribution to the project in the Outreachy website before you can submit a final application.
+	</p>
+	<p><b>{{ current_round.contributions_close }} 4pm UTC is the final application deadline.</b> You can edit your final application until the final application deadline.</p>
+	<p>
+	If you're having trouble figuring out how to contribute,
+	<a href="https://www.outreachy.org/apply/make-contributions/">check out our contribution tips</a>.
+	</p>
+{% else %}
+	{% if final_application and not project.round.internannounce.has_passed %}
+		<h1>Record Contributions and View Application to {{ community.name }}</h1>
+		<p>You're recording contributions and viewing your application to the following project:</p>
+		<p><strong>{{ project.short_title }}</strong></p>
+	{% else %}
+		<h1>View Contributions to {{ community.name }}</h1>
+		<p>You're viewing contributions to the following project:</p>
+		<p><strong>{{ project.short_title }}</strong></p>
+	{% endif %}
+		<p>Deadline was {{ current_round.contributions_close }} 4pm UTC to record your contributions and create a final application.
+	{% if final_application %}
+		Since you submitted a final application by the deadline, you are eligible to be selected as an intern for this project. You may continue recording your contributions to this project until the intern announcement on {{ current_round.internannounce }} at 4pm UTC.</p>
+	{% else %}
+		Since you did not submit a final application by the deadline, you are not eligible to be selected as an intern for this project.</p>
+	{% endif %}
+{% endif %}
+
+{% if contributions %}
+	{% if not final_application and not current_round.contributions_close.has_passed %}
+		<h2>Project Application</h2>
+		<p><a class='btn btn-success' href="{{ project.get_apply_url }}">Apply for This Project</a></p>
+	{% else %}
+		<h2>{{ community.name }} Internship Project Application</h2>
+	{% endif %}
+
+	{% if not current_round.contributions_close.has_passed %}
+		<p>Your final application will ask you to fill out a timeline for the
+		internship project. If you have trouble with this, or a mentor tells
+		you they don't want you to fill out the timeline, you should simply
+		note any full-time commitments you'll have during the internship period
+		that will impact your work.</p>
+
+		<p>When filling out the timeline, applicants should look at the
+		internship tasks listed on the project page, and take into account
+		their full-time commitments to determine what they'll be working on
+		during what part of the internship period. This project's internship tasks are
+		listed here (and if they're not listed, you should contact your mentor to
+		get more information on the internship tasks):</p>
+
+		<p><a href="{{ project.get_landing_url }}">{{ request.scheme }}://{{ request.get_host }}{{ project.get_landing_url }}</a></p>
+
+		<p>Most projects will require a few weeks of ramp-up, research, and
+		integrating into the community. Try to break down each big internship
+		task into several smaller tasks, until you have an idea of what you'll
+		be working for each week of the 13 week internship. All projects will
+		have some tasks where the details will be vague until the time you
+		start the task. It is fine to provide higher-level descriptions of what
+		you'll be working on.</p>
+
+		<p>These are our suggestions for how to complete the timeline. What
+		Outreachy organizers want to see is that you have a solid sense of the
+		direction the project will take. What Outreachy mentors need to see is
+		when your work will be impacted by any full-time commitments, such as
+		exams or vacation. You should work with your mentor to understand when
+		their vacation or conferences occur, so you can plan for periods where
+		they will be less responsive and you'll need to rely on the community
+		to answer your questions. Each of you will have other time commitments,
+		and it's important to communicate those to each other.</p>
+	{% endif %}
+
+	{% if final_application %}
+		{% if not current_round.contributions_close.has_passed %}
+			<h3>Editing Your Final Application</h3>
+			<p>You'll be able to edit your application until the final application deadline has passed.
+			The "Save" button makes the latest version of your application visible to Outreachy mentors and coordinators.
+			Saving your application effectively submits it. There is no specific "Submit" option.
+		{% else %}
+			<h3>View Your Final Application</h3>
+			<p>The final application deadline has now passed, and your final application cannot be edited.
+			Your final application will be considered for this internship project.
+		{% endif %}
+		If you wish to withdraw your final application, there is a button at the bottom of your application to do so.<p>
+
+		<p>After the final application deadline ({{ current_round.contributions_close }} at 4pm UTC)
+		project mentors will take a couple weeks to decide who they want to accept as an intern.
+		They will review all applications in the application system,
+		and communicate their intern selection to Outreachy organizers.
+		The Outreachy organizers may also need time to seek out additional funding to have organizations accept more interns.
+		</p>
+		<p>
+		Applicants typically don't get any email from organizers after the final application deadline has passed.
+		Some applicants may get email to clarify their time commitments.
+		Even if you don't receive an email, all applications in the system after the deadline will be reviewed.
+		</p>
+
+		<p>
+		After the final application deadline and before the interns are announced,
+		you are welcome to continue making contributions to the projects you applied for.
+		We find that applicants often become passionate about their project, and get hooked on making contributions.
+		Many applicants who are selected for internships continue working past the final application deadline, although it is not required.
+		You can continue to record contributions until interns are announced.
+		</p>
+
+		<p>
+		Intern selections will be posted on the <a href="/alums/">Alums</a> page on {{ current_round.internannounce }} at 4pm UTC.
+		We'll also send the full list to the <a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce">announcements mailing list</a>.
+		Interns will get a personal email asking them to confirm their internship.
+		{% comment %}FIXME there's no way to change email addresses, see #145.
+		Interns will get a personal email to the email address used on their <a href="{% url 'account' %}">account</a> asking them to confirm their internship.
+		If you are graduating from school, make sure to use a personal email address, not a school address.
+		{% endcomment %}
+		</p>
+
+		<h2>Your Project Application</h2>
+		<p>
+		You're viewing your application for the following {{ community.name }} project:
+		<br><strong>{{ project.short_title }}</strong>
+		</p>
+		{% if final_application.is_withdrawn %}
+			<div class="card border-warning mb-3">
+				<div class="card-header text-white bg-warning">Withdrawn Application</div>
+				<div class="card-body">
+					<p class="card-text">
+					This application is withdrawn. You will not be eligible to be accepted as an intern for this project. The reason you gave for withdrawing your application was:
+					</p>
+					<p>{{ final_application.reason_denied }}</p>
+					<p><a class='btn btn-success' href="{{ final_application.get_submit_url }}">Re-submit Application</a></p>
+				</div>
+			</div>
+		{% elif not current_round.contributions_close.has_passed %}
+			<p><a class='btn btn-primary' href="{{ final_application.get_submit_url }}">Update Your Application</a></p>
+		{% endif %}
+		<p><i>Your past experience with this free software community and project:</i></p>
+		<pre>{{ final_application.experience }}</pre>
+		<p><i>Your past experience with other free software communities:</i></p>
+		<pre>{{ final_application.foss_experience }}</pre>
+		<p><i>Your relevant personal or class projects that relate to this project:</i></p>
+		<pre>{{ final_application.relevant_projects }}</pre>
+		{% if final_application.time_correct %}
+		<p><i>You verified the time commitments listed on your initial application are correct.{% if final_application.time_updates %} You provided the following updates about your time commitments:</i></p><pre>{{ final_application.time_updates }}</pre>{% else %}</i></p>{% endif %}
+		{% else %}
+			<p><i>On your final application, you said the time commitments listed on your initial application are not correct. You provided the following updates about your time commitments:</i></p>
+			{% if final_application.time_updates %}<pre>{{ final_application.time_updates }}</pre>
+			{% else %}
+			<div class="card border-warning mb-3">
+				<div class="card-header text-white bg-warning">Please provide time commitment updates</div>
+				<div class="card-body">
+					<p class="card-text">
+					You said the time commitments on your initial application are not correct. Please edit your final application to include updated time commitment information. Include updated start dates and end dates of your time commitments.
+					</p>
+				</div>
+			</div>
+			{% endif %}
+		{% endif %}
+		{% if final_application.community_specific_questions %}
+		<p><i>Answers to community-specific questions:</i></p>
+		<pre>{{ final_application.community_specific_questions }}</pre>
+		{% else %}
+		<p><i>You have not provided answers to community-specific questions. Please double check with your mentor and coordinator if you need to provide additional information.</i></p>
+		{% endif %}
+		{% if final_application.applying_to_gsoc %}
+		<p><i>Google Summer of Code communities and projects you are applying for, and the mentor contact information for those projects:</i></p>
+		<pre>{{ final_application.applying_to_gsoc }}</pre>
+		{% else %}
+		<p><i>You are not applying to Google Summer of Code.</i></p>
+		{% endif %}
+		<p><i>Timeline of tasks for the internship period:</i></p>
+		<pre>{% if final_application.timeline %}{{ final_application.timeline }}{% else %}TBD{% endif %}</pre>
+		{% if not final_application.is_withdrawn %}
+		<p><a class='btn btn-warning' href="{{ final_application.get_withdraw_url }}">Withdraw Your Application</a></p>
+		{% endif %}
+	{% endif %}
+{% endif %}
+{% if contributions %}
+	<h2>Your Contributions</h2>
+	<p>
+	You're viewing your contributions for the following {{ community.name }} project:
+	<br><strong>{{ project.short_title }}</strong>
+	</p>
+{% endif %}
+{% if not current_round.contributions_close.has_passed or not project.round.internannounce.has_passed and final_application %}
+	<p><a class='btn btn-success' href="{% url 'contributions-add' round_slug=current_round.slug community_slug=community.slug project_slug=project.slug %}">Record a Contribution</a></p>
+{% endif %}
+<hr>
+{% for c in contributions %}
+<p><i>Contribution #{{ forloop.counter }}: started {{ c.date_started }}{% if c.date_merged %}, merged {{ c.date_merged }}{% else %}. <strong>Not accepted or merged.</strong></i>{% endif %}
+	{% if not current_round.contributions_close.has_passed or not project.round.internannounce.has_passed and final_application%}
+		Update accepted date by editing this contribution.</p>
+		<p><a class='btn btn-primary' href="{% url 'contributions-edit' round_slug=current_round.slug community_slug=community.slug project_slug=project.slug contribution_id=c.pk %}">Edit Contribution</a></p>
+	{% else %}
+		</p>
+	{% endif %}
+
+	<p><a href="{{ c.url }}">{{ c.url }}</a></p>
+	<pre>{{ c.description }}</pre>
+	{% if not forloop.last %}
+		<hr>
+	{% endif %}
+{% endfor %}
+
+{% endblock %}

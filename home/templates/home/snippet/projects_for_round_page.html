@@ -1,0 +1,25 @@
+{% for project in projects %}
+	{% if not project.is_approved %}
+	<div class="card border border-warning" id="{{ project.project_round.community.slug}}-{{ project.slug }}">
+		<div class="card-header bg-warning text-light">
+	{% else %}
+	<div class="card border" id="{{ project.project_round.community.slug}}-{{ project.slug }}">
+		<div class="card-header bg-light">
+	{% endif %}
+		{% if not project.is_approved %}{{ project.get_approval_status_display }} {% endif %}{{ project.project_round.community.name }} {% if not project.new_contributors_welcome %}closed {% endif %}project #{{ forloop.counter }}
+		</div>
+		<div class="card-body">
+		{% comment %}If this view didn't set any mentors_pending_projects, it means there's no pending mentored projects {% endcomment %}
+		{% if not role.is_approved_applicant and not role.is_volunteer and not project in mentors_pending_projects %}
+			<p><strong>{{ project.short_title }}</strong></p>
+			<div class="card-text">{% include 'home/snippet/project_hidden.html' %}</div>
+		{% else %}
+			<p><strong><a href="{{ project.project_round.get_absolute_url }}#{{ project.slug }}">{{ project.short_title }}</a></strong></p>
+		{% endif %}
+
+		{% include "home/snippet/project_deadline.html" %}
+		{% include "home/snippet/project_skills_display.html" %}
+		</div>
+	</div>
+	<br>
+{% endfor %}

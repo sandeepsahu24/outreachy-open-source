@@ -1,0 +1,30 @@
+{% extends "base.html" %}
+{% load approval_status %}
+
+{% block title %}
+{{ mentorapproval.get_approval_status_display }} Mentor for {{ mentorapproval.project.short_title }}
+{% endblock %}
+
+{% block content %}
+{% with mentor=mentorapproval.mentor project=mentorapproval.project community=mentorapproval.project.project_round.community %}
+<p><a href="{% url 'community-cfp' %}">Timeline and FAQ for Outreachy Communities</a> &gt; <a href="{{ community.get_preview_url }}">{{ community.name }}</a> &gt; {{ mentorapproval.get_approval_status_display }} Mentor</p>
+
+<h1>
+	{{ mentorapproval.get_approval_status_display }}
+	Mentor for {{ community.name }}
+</h1>
+
+{% if mentorapproval.is_pending %}
+<p>Please read through the answers {{ mentor.public_name }} has provided and decide whether they should be approved as a mentor for the {{ community.name }} internship project proposal <a href="{{ project.get_landing_url }}">"{{ project.short_title }}"</a></p>
+
+{% if mentorapproval|is_approver:request.user %}
+{% include "home/snippet/mentor_approval_warnings.html" with approval=mentorapproval only %}
+<a href="{{ mentorapproval.get_approve_url }}" class="btn btn-success">Approve Mentor</a>
+<a href="{{ mentorapproval.get_reject_url }}" class="btn btn-warning">Reject Mentor</a>
+{% endif %}
+{% endif %}
+
+{% include "home/snippet/mentor_info.html" with approval=mentorapproval only %}
+
+{% endwith %}
+{% endblock %}

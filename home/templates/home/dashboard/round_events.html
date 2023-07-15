@@ -1,0 +1,16 @@
+<h1>Email Reminders</h1>
+
+{% for event in section.events %}
+<h4>{{ event.due }} -
+{% if section.today == event.due %}
+	today!
+{% elif section.today > event.due %}
+	passed: {{ event.due|timesince:section.today }} ago
+{% else %}
+	{{ event.due|timeuntil:section.today }} from now
+{% endif %}
+</h4>
+{% include event.kind.dashboard_snippet with current_round=event.current_round due=event.due only %}
+<p><a href="{% url event.kind.url_name round_slug=event.current_round.slug %}" class="btn btn-success">{{ event.kind.description }}</a></p>
+{% if not forloop.last %}<hr>{% endif %}
+{% endfor %}

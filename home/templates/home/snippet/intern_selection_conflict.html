@@ -1,0 +1,20 @@
+<div class="card border-warning mb-3">
+	<div class="card-header text-white bg-warning">Intern selection conflict</div>
+	<div class="card-body">
+		<div class="card-text">
+			<p>{{ intern.applicant.applicant.public_name }} has been selected by more than one project:
+			<ul>
+		{% for conflict in conflicts %}
+				<li>{{ conflict.project.project_round.community.name }} for "{{ conflict.project.short_title }}" -
+					<a href="{{ conflict.project.get_applicants_url }}#{{ intern.applicant.applicant.pk }}">contribution and application details</a>
+				</li>
+		{% endfor %}
+				<li>{{ project.project_round.community.name }} for "{{ project.short_title }}" -
+					<a href="{{ project.get_applicants_url }}#{{ intern.applicant.applicant.pk }}">contribution and application details</a>
+				</li>
+			</ul>
+			</p>
+			<p>An email has been sent to all mentors and coordinators about this conflict. Please check your email and start a discussion there.</p>
+		</div>
+	</div>
+</div>

@@ -1,0 +1,14 @@
+# Python compiled files
+*.pyc
+# Django sqlite database for local development experiments
+# The real server will use a different post gres database
+db.sqlite3
+*.swp
+*.swo
+/static/
+/media/
+/node_modules/
+
+# coverage.py outputs
+/.coverage
+/htmlcov/

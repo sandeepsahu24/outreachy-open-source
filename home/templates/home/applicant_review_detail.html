@@ -1,0 +1,289 @@
+{% extends "base.html" %} 
+{% load compress %}
+{% load static %}
+
+{% block title %}
+{{ application.applicant.public_name }} - Review Application
+{% endblock %}
+
+{% block content %}
+	{% if application.is_approved %}
+		<p><a class='btn btn-secondary' href="{% url 'approved-applicants-summary' %}"> &lt;- Back to summary of approved applications</a></p>
+	{% elif application.is_pending %}
+		<p><a class='btn btn-secondary' href="{% url 'pending-applicants-summary' %}"> &lt;- Back to summary of pending applications</a></p>
+	{% elif application.is_rejected %}
+		<p><a class='btn btn-secondary' href="{% url 'rejected-applicants-summary' %}"> &lt;- Back to summary of rejected applications</a></p>
+	{% endif %}
+
+	<h1>Status</h1>
+	<table class="table table-striped table-bordered">
+		{% include 'home/snippet/application_review_headers.html' %}
+		{% with app=application %}
+			{% include 'home/snippet/application_review_rows.html' %}
+		{% endwith %}
+	</table>
+	{% include 'home/snippet/applicant_review_actions.html' %}
+	<h1>Initial Application</h1>
+
+	{% if application.barrierstoparticipation.content_warnings %}
+		<p>Content warnings: <b>{{ application.barrierstoparticipation.content_warnings }}</b></p>
+	{% endif %}
+
+	<h2>Time Commitment Details</h2>
+	{% include 'home/snippet/time_commitment_overview.html' %}
+	{% include 'home/snippet/applicant_review_time_commitments.html' %}
+
+	<h2>Eligibility</h2>
+	<ul>
+		<li>
+			{% if application.is_over_18 == False %}
+				<span class="badge badge-warning">Warning</span> Age eligibility: <b>No</b>, applicant is not over 18 years of age when the internship starts.
+			{% elif application.is_over_18 == True %}
+				Age eligibility: <b>Yes</b>, applicant is over 18 years of age when the internship starts.
+			{% else %}
+				Age eligibility: Applicant was not asked this question.
+			{% endif %}
+		</li>
+
+		<li>
+			{% if application.is_eligible_to_work == False %}
+				<span class="badge badge-warning">Warning</span> Work eligibility: <b>No</b>, applicant is not eligible to work in the countries they are living in during the internship.
+			{% elif application.is_eligible_to_work == True %}
+				Work eligibility: <b>Yes</b>, applicant is eligible to work in the countries they are living in during the internship.
+			{% else %}
+				Work eligibility: Applicant was not asked this question.
+			{% endif %}
+		</li>
+	{% with tcs=application.get_time_commitments %}
+		<li>
+			{% if tcs.longest_period_free < application.required_days_free %}
+				<span class="badge badge-warning">Warning</span> Time eligibility: <b>No</b>, applicant has
+			{% else %}
+				Time eligibility: <b>Yes</b>, applicant has
+			{% endif %}
+			{{ tcs.longest_period_free }} days free / {{ tcs.internship_total_days.days }} days total. This applicant is required to have {{ application.required_days_free }} days free.
+		</li>
+		{% if tcs.employment_time_commitments %}
+			<li><span class="badge badge-warning">Warning</span> Applicant has a part-time job.</li>
+		{% endif %}
+	{% endwith %}
+	{% if application.schoolinformation %}
+		<li><span class="badge badge-warning">Warning</span> This is a student from {% include 'home/snippet/applicant_location.html' %}.</li>
+		{% with stats=application.schoolinformation.classmate_statistics %}
+		<li>{% if stats.graduating %}Graduating{% else %}Non-graduating{% endif %} classmates: {{ stats.acceptance_rate|floatformat }}% accepted, {{ stats.time_rejection_rate|floatformat }}% rejected for full-time commitments</li>
+		{% endwith %}
+	{% endif %}
+		<li>
+			{% if application.is_not_under_export_control == False %}
+				<span class="badge badge-warning">Warning</span> Free from U.S. export control: <b>No</b>, applicant is under U.S. export control.
+			{% elif application.is_not_under_export_control == True %}
+				Free from U.S. export control: <b>Yes</b>, applicant is free from U.S. export control.
+			{% else %}
+				Free from U.S. export control: Applicant was not asked this question.
+			{% endif %}
+		</li>
+		<li>
+			{% if application.is_not_under_sanctions == False %}
+				<span class="badge badge-warning">Warning</span> Free from U.S. sanctions: <b>No</b>, applicant is in a country or region under U.S. sanctions.
+			{% elif application.is_not_under_sanctions == True %}
+				Free from U.S. sanctions: <b>Yes</b>, applicant is not in a country or region under U.S. sanctions.
+			{% else %}
+				Free from U.S. sanctions: Applicant was not asked this question.
+			{% endif %}
+		</li>
+		<li>
+			{% if application.was_not_intern_with_gsoc_or_outreachy == False %}
+				<span class="badge badge-warning">Warning</span> Has not participated in GSoC or Outreachy: <b>No</b>, applicant has participated in Google Summer of Code, Outreach Program for Women, or Outreachy before.
+			{% elif application.was_not_intern_with_gsoc_or_outreachy == True %}
+				Has not participated in GSoC or Outreachy: <b>Yes</b>, applicant has not participated in Google Summer of Code, Outreach Program for Women, or Outreachy before.
+			{% else %}
+				Has not participated in GSoC or Outreachy: Applicant was not asked this question.
+			{% endif %}
+		</li>
+	</ul>
+
+	<h2>Additional Information</h2>
+	<p>Pronouns: <b>{{ application.applicant.get_pronouns_display }}</b>
+	<p>Gender identity: {% if application.applicantgenderidentity %}<b>{{ application.applicantgenderidentity }}</b>{% else %} [Removed]{% endif %}</p>
+	<p>Location during internship: {% if not application.barrierstoparticipation %}[Removed]{% else %}<b>{{ application.barrierstoparticipation.country_living_in_during_internship }}</b>{% endif %}</p>
+	
+	<p>Racial or ethnic minority in the United States technology industry: {% if not application.paymenteligibility.us_national_or_permanent_resident %}Unknown; not a U.S. resident or national.{% elif not application.applicantraceethnicityinformation %}[Removed]{% elif application.applicantraceethnicityinformation.us_resident_demographics %}<b>Yes</b>, they're Black/African American, Hispanic/Latinx, Native American, Alaska Native, Native Hawaiian, or Pacific Islander{% else %}<b>No</b>, they're not Black/African American, Hispanic/Latinx, Native American, Alaska Native, Native Hawaiian, or Pacific Islander.{% endif %}</p>
+
+	<p>Prior experience with FOSS:</p>
+	<ul>
+		<li>
+			{% if application.priorfossexperience.prior_contributor %}
+				<b>Yes</b>, they have volunteered to create FOSS contributions.
+			{% else %}
+				<b>No</b>, no they have not volunteered contributions to FOSS.
+			{% endif %}
+		</li>
+		<li>
+			{% if application.priorfossexperience.prior_paid_contributor %}
+				<span class="badge badge-warning">Warning</span><b>Yes</b>, they have been paid for their FOSS contributions.
+			{% else %}
+				<b>No</b>, no they have not been paid for their contributions to FOSS.
+			{% endif %}
+		</li>
+	</ul>
+
+	<h2>Reviewer Comments</h2>
+	<p><a class='btn btn-info' href="{% url 'update-comment' applicant_username=application.applicant.account.username %}">Update your comments</a></p>
+	{% for reviewer, comment in application.get_reviewer_comments %}
+		<div class="card mb-3">
+			<div class="card-header">{{ reviewer }} - Reviewer Comments</div>
+			<div class="card-body">
+				<div class="card-text">{{ comment|linebreaks }}</div>
+			</div>
+		</div>
+	{% endfor %}
+	<h2>Essay Review</h2>
+	{% include 'home/snippet/applicant_review_essay_rating.html' %}
+
+	<h2>Essay Answers</h2>
+
+	{% if not application.barrierstoparticipation %}
+		<p>The essay answers have been removed after initial application processing.</p>
+	{% else %}
+		{% for field, answer in application.barrierstoparticipation.get_answers %}
+		<div class="card mb-3">
+			<div class="card-header">Q{{ forloop.counter }}. {{ field.verbose_name }}</div>
+			<div class="card-body">
+				<p class="card-text">A{{ forloop.counter }}. {{ answer|linebreaksbr }}
+				</p>
+			</div>
+			<div class="card-footer bg-white">
+				<div class="card border-info mb-3" id="essay-accordian-{{ forloop.counter }}">
+					<div class="card-header" id="essay-tips-header">
+						<h5 class="mb-0">
+							<button class="btn btn-link" data-toggle="collapse" data-target="#essay-tips-accordion-{{ forloop.counter }}" aria-expanded="false" aria-controls="essay-tips-accordion" href="#essay-tips-accordion">- Help text</button>
+						</h5>
+					</div>
+					<div id="essay-tips-accordion-{{ forloop.counter }}" class="collapse hide" aria-labelledby="essay-tips-header" data-parent="#essay-accordian-{{ forloop.counter }}">
+						<div class="card-body">
+							<div class="card-text">
+								<p>Help text:</p> {{ field.help_text|safe }}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		{% endfor %}
+	{% endif %}
+
+	{% include 'home/snippet/applicant_review_actions.html' %}
+{% endblock %}
+
+{% block extra_css %}
+{% compress css %}
+<link rel="stylesheet" href="{% static "timeline-chart.css" %}">
+<style>
+.timeline-chart rect.interval {
+	fill: #6c757d;
+}
+.timeline-chart rect.interval.conflict {
+	fill: #dc3545;
+}
+.timeline-chart.enough-time rect.interval.conflict {
+	fill: #ffc107;
+}
+.timeline-chart.enough-time .interval-text.conflict {
+	fill: #212529;
+}
+.timeline-chart rect.interval.reference {
+	fill: #000;
+}
+</style>
+{% endcompress %}
+{% endblock %}
+
+{% block extra_js %}
+<script type="text/javascript" src="https://d3js.org/d3.v3.min.js"></script>
+<script src="{% static "timeline-chart.js" %}"></script>
+{% with tcs=application.get_relevant_time_commitments current_round=application.application_round %}
+<script>
+	new TimelineChart(document.getElementById("time-commitments-timeline"), [{
+		label: "Internship period",
+		data: [{
+			type: TimelineChart.TYPE.INTERVAL,
+			customClass: "reference",
+			from: new Date([{{ current_round.internstarts|date:"Y, n, j" }}]),
+			to: new Date([{{ current_round.internends|date:"Y, n, j" }}])
+		}]
+	}, {
+		label: "School terms",
+		data: [{
+{% for term in tcs.school_time_commitments %}
+			label: "{{ term.term_name|escapejs }}{% if term.last_term %} (last){% endif %}",
+			customClass: "{% if term.start_date <= current_round.internends and current_round.internstarts <= term.end_date %}conflict{% endif %}",
+			type: TimelineChart.TYPE.INTERVAL,
+			from: new Date([{{ term.start_date|date:"Y, n, j" }}]),
+			to: new Date([{{ term.end_date|date:"Y, n, j" }}])
+{% if not forloop.last %}
+		}, {
+{% endif %}
+{% endfor %}
+		}]
+	}, {
+{% with terms=application.schoolinformation.find_official_terms %}
+		label: "Official terms",
+		data: [{
+{% for term in terms %}
+			label: "{{ term.term_name|escapejs }}",
+			customClass: "reference",
+			type: TimelineChart.TYPE.INTERVAL,
+			from: new Date([{{ term.start_date|date:"Y, n, j" }}]),
+			to: new Date([{{ term.end_date|date:"Y, n, j" }}])
+{% if not forloop.last %}
+		}, {
+{% endif %}
+{% endfor %}
+		}]
+{% endwith %}
+	}, {
+		label: "Online/coding school",
+		data: [{
+{% for course in tcs.noncollege_school_time_commitments %}
+			label: "{{ course.hours_per_week }} hours/week{% if course.quit_on_acceptance %} (will quit){% endif %}",
+			customClass: "{% if not course.quit_on_acceptance and course.start_date <= current_round.internends and current_round.internstarts <= course.end_date %}conflict{% endif %}",
+			type: TimelineChart.TYPE.INTERVAL,
+			from: new Date([{{ course.start_date|date:"Y, n, j" }}]),
+			to: new Date([{{ course.end_date|date:"Y, n, j" }}])
+{% if not forloop.last %}
+		}, {
+{% endif %}
+{% endfor %}
+		}]
+	}, {
+		label: "Employment",
+		data: [{
+{% for period in tcs.employment_time_commitments %}
+			label: "{{ period.hours_per_week }} hours/week as {{ period.job_title|escapejs }}{% if period.quit_on_acceptance %} (will quit){% endif %}",
+			customClass: "{% if not period.quit_on_acceptance and period.start_date <= current_round.internends and current_round.internstarts <= period.end_date %}conflict{% endif %}",
+			type: TimelineChart.TYPE.INTERVAL,
+			from: new Date([{{ period.start_date|date:"Y, n, j" }}]),
+			to: new Date([{{ period.end_date|date:"Y, n, j" }}])
+{% if not forloop.last %}
+		}, {
+{% endif %}
+{% endfor %}
+		}]
+	}, {
+		label: "Volunteering",
+		data: [{
+{% for period in tcs.volunteer_time_commitments %}
+			label: "{{ period.hours_per_week }} hours/week",
+			customClass: "{% if period.start_date <= current_round.internends and current_round.internstarts <= period.end_date %}conflict{% endif %}",
+			type: TimelineChart.TYPE.INTERVAL,
+			from: new Date([{{ period.start_date|date:"Y, n, j" }}]),
+			to: new Date([{{ period.end_date|date:"Y, n, j" }}])
+{% if not forloop.last %}
+		}, {
+{% endif %}
+{% endfor %}
+		}]
+	}]);
+</script>
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,386 @@
+{% extends "base.html" %}
+
+{% block title %}
+{{ community.name }}:
+{% if current_round and participation_info and not participation_info.is_rejected and not participation_info.is_withdrawn %}
+Call for Outreachy mentors and volunteers
+{% else %}
+Past community participation in Outreachy
+{% endif %}
+
+{% endblock %}
+
+{% block content %}
+<p><a href="{% url 'community-cfp' %}">Timeline and FAQ for Outreachy Communities</a> &gt; {{ community.name }}</p>
+<h1>
+{% if current_round and participation_info and not participation_info.is_rejected and not participation_info.is_withdrawn %}
+{{ community.name }}: Call for Outreachy mentors
+{% else %}
+{{ community.name }} in Outreachy
+{% endif %}
+</h1>
+
+<p>Outreachy provides paid, remote, three-month internships. Outreachy's goal is to support diversity in Free and Open Source Software (FOSS). For more information about what Outreachy is and the deadlines for mentors and coordinators, <a href="/communities/cfp">read the Community Call for Participation page</a>.
+</p>
+
+{% if not current_round or current_round.project_soft_deadline.has_passed %}
+	{% include 'home/snippet/cfp_read_only_closed_warning.html' %}
+{% endif %}
+
+<p>
+This page is for potential mentors and coordinators only. If you are an Outreachy applicant, please see the <a href="/apply/">application instructions</a> or <a href="{% url 'project-selection' %}">current list of projects</a>.
+</p>
+
+<h2>{{ community.name }} coordinator</h2>
+<p>Coordinators find and advise mentors who want to participate in Outreachy. Coordinators also provide information about the community for the landing page shown to applicants.</p>
+{% with approved_coordinator_list=community.coordinatorapproval_set.approved approved_projects=participation_info.project_set.approved %}
+{% if approved_coordinator_list %}
+	<p>The {{ community.name }} coordinator{{ approved_coordinator_list|length|pluralize:" is,s are" }}
+	{% for approval in approved_coordinator_list %}
+	{% if user.is_authenticated %}<a href="{{ approval.get_preview_url }}">{{ approval.coordinator.public_name }}</a>{% else %}"{{ approval.coordinator.public_name }}"{% endif %}{% if user.is_authenticated %} &lt;{{ approval.coordinator.account.email }}&gt;{% endif %}{% if not forloop.last %}, {% else %}.{% endif %}
+	{% endfor %}
+{% else %}
+	<p>This community currently has no approved coordinator. Coordinators approve mentored projects, and communicate with both mentors and Outreachy organizers. The full list of coordinator duties can be found on <a href="/mentor/">here</a>.
+{% endif %}
+
+{% if not coordinator %}
+	<p>If you have been a community coordinator in the past but have not yet created an account on this site, or you would like to volunteer to be a new coordinator and you understand the <a href="/mentor/">coordinator duties</a>, you can sign up to be a community coordinator.</p>
+	<p><a href="{{ community.get_coordinator_signup_url }}" class="btn btn-success">Coordinate for This Community</a></p>
+{% elif not coordinator.is_approved %}
+	<p>Your request to coordinate for this community is: <strong>{{ coordinator.get_approval_status_display }}</strong></p>
+{% else %}
+	{% if not participation_info %}
+	{% elif participation_info.is_withdrawn %}
+		<p>Have you changed your mind and decided your community can participate in this round of Outreachy?</p>
+		<p><a class="btn btn-success" href="{{ participation_info.get_submit_url }}">Community will participate</a></p>
+	{% elif participation_info.is_rejected %}
+	<p>Unfortunately, the Outreachy organizers have determined your community should not participate in this round. Please <a href="{% url 'contact-us' %}">contact us</a> for more details.</p>
+	{% else %}
+		{% with participation=participation_info %}
+			{% include 'home/snippet/coordinator_action.html' %}
+		{% endwith %}
+	{% endif %}
+{% endif %}
+
+{% if current_round %}
+	<div class="card mb-3">
+	    <div class="card-header">Community status</div>
+	    <div class="card-body">
+		    <table class=table>
+			    {% if not participation_info %}
+				    <tr>
+					    <td><span class="badge badge-pill badge-warning">Not Participating</span></td>
+					    <td>The community coordinator{{ approved_coordinator_list|length|pluralize:" has,s have" }} not submitted this community
+						    to participate in the {{ current_round.internstarts|date:"F Y" }} to {{ current_round.internends|date:"F Y" }} Outreachy internship round.
+						    {% if not request.user.comrade %}If you are the coordinator, you can <a href="{% url 'login' %}?next={{ request.path|urlencode }}">log in</a>
+						    to indicate your community will participate.{% endif %}
+					    </td>
+				    </tr>
+			    {% elif participation_info.is_pending %}
+				    <tr><td><span class="badge badge-pill badge-info">Pending Participation</span></td><td>Outreachy organizers have not approved this community to participate in the {{ current_round.internstarts|date:"F Y" }} to {{ current_round.internends|date:"F Y" }} internship round</td></tr>
+			    {% elif participation_info.is_rejected %}
+				    <tr><td><span class="badge badge-pill badge-warning">Not Participating</span></td><td>Unfortunately, either the community coordinator{{ approved_coordinator_list|length|pluralize }} or the Outreachy organizers have determined that the community will not participate in the {{ current_round.internstarts|date:"F Y" }} to {{ current_round.internends|date:"F Y" }} Outreachy internship round.</td></tr>
+			    {% elif participation_info.is_approved %}
+				    <tr><td><span class="badge badge-pill badge-success">Participating</span></td><td>This community is approved to participate in the {{ current_round.internstarts|date:"F Y" }} to {{ current_round.internends|date:"F Y" }} internship round</td></tr>
+			    {% endif %}
+			    {% if participation_info and participation_info.interns_funded <= 0 %}
+				    <tr><td><span class="badge badge-pill badge-warning">Not Funded</span></td><td>The community has not found funding for at least one intern ($6,500).</td></tr>
+			    {% elif participation_info and participation_info.interns_funded > 0 %}
+				    <tr><td><span class="badge badge-pill badge-success">Funded</span></td><td>This community has funding for {{ participation_info.interns_funded }} intern{{ participation_info.interns_funded|length|pluralize }}.</td></tr>
+			    {% endif %}
+			    {% if not approved_projects %}
+				    {% if participation_info %}
+				    <tr><td><span class="badge badge-pill badge-warning">No Projects</span></td><td>The coordinator has not approved any projects for Outreachy interns to work on.</td></tr>
+				    {% endif %}
+			    {% else %}
+				    <tr><td><span class="badge badge-pill badge-success">{{ approved_projects|length }} Projects Approved</span></td><td>The coordinator has approved {{ approved_projects|length }} project{{ approved_projects|length|pluralize }}. There are {{ participation_info.project_set.pending|length }} project{{ participation_info.project_set.pending|length|pluralize }} pending approval.</td></tr>
+			    {% endif %}
+			    {% if not current_round.project_soft_deadline.has_passed %}
+				    {% if participation_info %}
+				    <tr><td><span class="badge badge-pill badge-info">Open to New Projects</span></td><td>Mentors can submit projects for Outreachy applicants until {{ current_round.project_soft_deadline }} at 4pm UTC.</td></tr>
+				    {% endif %}
+			    {% else %}
+				    <tr><td><span class="badge badge-pill badge-warning">Closed to New Projects</span></td><td>The deadline to submit new projects for this Outreachy round is closed.</td></tr>
+			    {% endif %}
+		    </table>
+	    </div>
+	</div>
+{% endif %}
+
+{% if current_round and coordinator and coordinator.is_approved and not participation_info %}
+<hr />
+	<h2>Participate in This Round</h2>
+	<p>You can sign the community up to participate in the current round.</p>
+	<p><a class="btn btn-success" href="{% url 'participation-action' action='submit' round_slug=current_round.slug community_slug=community.slug %}">Community will participate</a></p>
+	<p>If you don't have sponsorship funds or you can't find mentors for this round, you can indicate your community won't participate.
+	This will help direct mentors to communities that are participating.</p>
+	<p><a class="btn btn-warning" href="{% url 'participation-action' action='withdraw' round_slug=current_round.slug community_slug=community.slug %}">Community will not participate</a></p>
+{% endif %}
+
+{% if not participation_info %}
+	{% if not current_round %}
+		<h2>Mentor CFP Notifications</h2>
+	{% endif %}
+	{% if notification %}
+		<p>You are currently signed up to be notified when the coordinator indicates this community will participate in an Outreachy internship round. You signed up on {{ notification.date_of_signup }}.</p>
+	{% else %}
+		<p>Sign up to be notified when the coordinator finds funding and opens the call for volunteers and mentors.</p>
+		<a class="btn btn-success" href="{% url 'notify-me' community_slug=community.slug %}">Notify me</a>
+	{% endif %}
+
+{% else %}
+{% if participation_info.is_pending or participation_info.is_approved %}
+	{% if not current_round.project_soft_deadline.has_passed %}
+		<h2>Submit an Outreachy Intern Project Proposal</h2>
+
+		<p>{{ community.name }} welcomes experienced community contributors to help out as mentors. Each mentor will need to submit an intern project proposal. The project proposal will then be reviewed and approved by the FOSS community coordinator{{ approved_coordinator_list|length|pluralize }}. Additional co-mentors for the intern project will be able to sign up for the project after it has been approved by the community coordinator.</p>
+		<p>All proposed intern projects need to be released under licenses that are either an <a href="https://opensource.org/licenses/alphabetical">OSI-approved open source license</a> that is also identified by the FSF as a <a href="https://www.gnu.org/licenses/license-list.html">free software license</a>, OR a <a href="https://creativecommons.org/share-your-work/public-domain/freeworks/">Creative Commons license approved for free cultural works</a>.
+		</p>
+
+		<p>Please read the additional <a href="/mentor/mentor-faq/#define-a-project">Outreachy project requirements</a> before submitting an intern project proposal.</p>
+
+		<p>Please make sure you understand the <a href="/mentor/#mentor">mentor requirements</a>, especially the time commitment requirement.</p>
+
+		<p><strong>Outreachy applicants should not submit project proposals through this form.</strong> You need to look over the <a href="{% url 'project-selection' %}">list of projects</a> and pick a project from that list.</p>
+
+		<p><a class='btn btn-success' href="{% url 'project-action' action='submit' round_slug=current_round.slug community_slug=community.slug %}">Submit a Project Proposal</a></p>
+	{% else %}
+		<h2>Project Submission Deadline Passed</h2>
+		<p>Unfortunately, the deadline to submit new Outreachy internship projects has closed.
+		Mentors who missed the deadline are welcome to sign up for the
+		<a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce">Outreachy announcement list</a>
+		to receive a notification for next round.</p>
+	{% endif %}
+
+	{% if mentors_pending_projects %}
+		<h2>Your Pending Project{{ mentors_pending_projects|pluralize }}</h2>
+		<ul>
+		{% for project in mentors_pending_projects %}
+			<li>
+				<a href="{{ project.get_landing_url }}">{{ project.short_title }}</a>
+			</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+	{% if approved_projects %}
+		<h2>Approved Projects for {{ community.name}}</h2>
+
+		<p>You can promote your community's projects by linking to the current projects page:</p>
+		<p><pre>{{ request.scheme }}://{{ request.get_host }}{% url 'project-selection' %}#{{ community.slug }}</pre></p>
+
+		<p>Applicants cannot see the project details linked below until the contribution period opens on {{ current_round.contributions_open }}.</p>
+
+		<ul>
+		{% for project in approved_projects %}
+			<li>
+				{% if not project.new_contributors_welcome %}
+				(Closed to new applicants)
+				{% endif %}
+				<a href="{{ project.get_landing_url }}">{{ project.short_title }}</a>
+			</li>
+		{% endfor %}
+		</ul>
+	{% endif %}
+
+
+	{% if approved_projects %}
+		<h2>Co-mentor an Intern</h2>
+		<p>You can sign up to co-mentor an Outreachy intern.
+		Co-mentors should understand the <a href="/mentor/#mentor">mentor requirements</a>, especially the time commitment requirement.
+		</p>
+		<p>Only projects have been approved by the community coordinator for participation in this Outreachy round are open to co-mentor sign-up.
+		</p>
+		<p>Please select which approved project you would like to co-mentor for:
+		<form method="post">
+			{% csrf_token %}
+			<div class="dropdown">
+				<button class="btn btn-success dropdown-toggle" type="button" id="CoMentorMenu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Select project to co-mentor</button>
+				<div class="dropdown-menu" aria-labelledby="CoMentorMenu">
+					{% for project in approved_projects %}
+						<button class="dropdown-item" formaction="{{ project.get_mentor_signup_url }}">{{ project.short_title }}</button>
+					{% endfor %}
+				</div>
+			</div>
+		</form>
+		</p>
+	{% endif %}
+
+	{% if coordinator and coordinator.is_approved and not current_round.project_soft_deadline.has_passed %}
+	<h2>Need more projects?</h2>
+	<p>Send this page URL out to your community communication channels
+	and ask contributors to submit proposals. Mentors must submit their own
+	project proposal, and coordinators will approve project proposals.
+	</p>
+	<p>This page will look very different to potential mentors who aren't logged in,
+	so you may want to open it in a private browser tab to see what it looks like.
+	To open a private browser tab, use <kbd><kbd>ctrl/command</kbd> + <kbd>shift</kbd> + <kbd>N</kbd></kbd> for Chrome or Opera,
+	or <kbd><kbd>ctrl/command</kbd> + <kbd>shift</kbd> + <kbd>P</kbd></kbd> for Firefox or Internet Explorer.
+	</p>
+	<div class="card border-info mb-3">
+	    <div class="card-header text-white bg-info">Sample email or post</div>
+	    <div class="card-body">
+		<h5>Subject: Seeking Outreachy internship project proposals</h5>
+		<p class="card-text">
+		{{ community.name }} is participating in the Outreachy internship program.
+		Outreachy's goal is to support people from groups underrepresented in the technology industry.
+		Interns will work remotely with mentors from our community.</p>
+
+		<p>
+		We are seeking mentors to propose projects that Outreachy interns can work on during their internship.
+		</p>
+
+		<p>{{ current_round.project_soft_deadline }} at 4 pm UTC is the deadline to submit projects:
+		<a href="{{ community.get_preview_url }}">{{ request.scheme }}://{{ request.get_host }}{{ community.get_preview_url }}</a></p>
+
+		<p>
+		If you want help crafting your project proposal, please contact the {{ community.name }} coordinator{{ approved_coordinator_list|length|pluralize }}:
+		{% for approval in approved_coordinator_list %}"{{ approval.coordinator.public_name }}" &lt;{{ approval.coordinator.account.email }}&gt;{% if not forloop.last %},{% endif %}. {% endfor %}
+		<p>Mentors should read the mentor FAQ: <a href="/mentor/mentor-faq/">{{ request.scheme }}://{{ request.get_host }}/mentor/mentor-faq</a>
+		</p>
+		<p class="card-text">
+		Full details about the Outreachy program and the internship timeline
+		can be found on the Call for Participation page on the Outreachy website:
+		</p>
+		<p><a href="{% url 'community-cfp' %}">{{ request.scheme }}://{{ request.get_host }}{% url 'community-cfp' %}</a>
+	    </div>
+	</div>
+	{% endif %}
+{% endif %}
+{% endif %}
+
+{% if participation_info and user.is_staff %}
+<hr />
+	<h2>Outreachy Organizer Actions</h2>
+
+	{% if participation_info.is_withdrawn %}
+		<p>The coordinator has indicated that they will not be participating in this Outreachy internship round:</p>
+		<p>"{{ participation_info.reason_denied }}"</p>
+
+	{% else %}
+		{% if participation_info.is_rejected %}
+		<p>An Outreachy organizer has rejected this community to participate in this round of Outreachy.</p>
+		{% endif %}
+
+		{% if current_round.lateprojects.has_passed %}
+			<p>The deadline to approve new communities and mentored projects has passed. Outreachy organizers cannot approve new communities through the web interface. If absolutely necessary, Sage can approve the communities from the Django admin interface.</p>
+		{% else %}
+			<p>Outreachy organizers should read over the information coordinators provided about participating in this round (including intern funding information) and information about new communities. Then decide whether the community should participate in this round and either accept or reject the community.</p>
+		{% endif %}
+		{% if community.newcommunity %}
+			{% if not community.newcommunity.approved_license %}
+			<div class="card border-warning mb-3">
+			    <div class="card-header text-white bg-warning">Warning!</div>
+			    <div class="card-body">
+				<h5 class="card-title">This FOSS community uses licenses that are not
+				    an OSI-approved and FSF-approved free software license OR Creative Commons license.</h5>
+				<p class="card-text">The Outreachy parent organization, Software Freedom Conservancy, requires that all Outreachy internships further the goals of free and open source communities. FOSS communities that use proprietary licenses are not allowed.</p>
+				{% if community.newcommunity.unapproved_license_description %}
+					<p>The coordinator provided this description of their non-free licenses:</p>
+					{{ community.newcommunity.unapproved_license_description|safe }}
+				{% endif %}
+			    </div>
+			</div>
+			{% endif %}
+			{% if not community.newcommunity.no_proprietary_software %}
+			<div class="card border-warning mb-3">
+			    <div class="card-header text-white bg-warning">Warning!</div>
+			    <div class="card-body">
+				<h5 class="card-title">This FOSS community furthers the interests of proprietary software, rather than free software.</h5>
+				<p class="card-text">The Outreachy parent organization, Software Freedom Conservancy, requires that all Outreachy internships further the goals of free and open source communities. FOSS communities that further the interests of proprietary software are not allowed.</p>
+				{% if community.newcommunity.proprietary_software_description %}
+					<p>The coordinator provided this description of the proprietary software related to this FOSS community:</p>
+					{{ community.newcommunity.proprietary_software_description|safe }}
+				{% endif %}
+			    </div>
+			</div>
+			{% endif %}
+			{% if not community.newcommunity.approved_advertising %}
+			<div class="card border-warning mb-3">
+			    <div class="card-header text-white bg-warning">Warning!</div>
+			    <div class="card-body">
+				<h5 class="card-title">This FOSS community advertises services of only one company.
+</h5>
+				<p class="card-text">
+					{% include 'home/snippet/unapproved_advertising.html' %}
+				</p>
+				{% if community.newcommunity.unapproved_advertising_description %}
+					<p>The coordinator provided this description of their advertising practices:</p>
+					{{ community.newcommunity.unapproved_advertising_description|safe }}
+				{% endif %}
+			    </div>
+			</div>
+			{% endif %}
+			<div class="card border-info mb-3">
+			    <div class="card-header text-white bg-info">New community information</div>
+			    <div class="card-body">
+				    <p><b>Reason for participating:</b> {{ community.newcommunity.reason_for_participation }}</p>
+
+				    <p>{% if community.newcommunity.mentorship_programs %}<b>Past mentorship program participation:</b> {{ community.newcommunity.mentorship_programs }}{% else %}Information about which mentor programs the community participated in was not provided.{% endif %}</p>
+
+				    <p><b>Organizations that participate in this community:</b> {{ community.newcommunity.participating_orgs }}</p>
+
+				    {% if community.newcommunity.repositories %}
+					    <p><b>Repositories:</b></p>
+					    <p>{{ community.newcommunity.repositories|linebreaksbr }}</p>
+				    {% else %}
+					    <p>Links to code or creative works repositories were not provided.</p>
+				    {% endif %}
+
+				    <p>{% if community.newcommunity.licenses_used %}<b>Open source licenses used:</b></p><p>{{ community.newcommunity.licenses_used|linebreaksbr }}{% else %}A list of open source licenses used was not provided.{% endif %}</p>
+
+				    <p><b>{% if community.newcommunity.governance %}<a href="{{ community.newcommunity.governance }}">Governance policy</a>{% else %}Governance policy{% endif %}</b>. Organizations that participate in governance: {{ community.newcommunity.participating_orgs_in_goverance }}</p>
+
+				    <p>{% if community.newcommunity.cla %}<b><a href="{{ community.newcommunity.cla }}">CLA</a></b>{% else %}CLA not provided{% endif %}</p>
+				    <p>{% if community.newcommunity.dco %}<b><a href="{{ community.newcommunity.dco }}">DCO</a></b>{% else %}DCO not provided{% endif %}</p>
+
+				    <p>{% if community.newcommunity.code_of_conduct %}<b><a href="{{ community.newcommunity.code_of_conduct }}">Code of Conduct</a></b>{% else %}Code of Conduct not provided{% endif %}.{% if community.newcommunity.coc_committee %} Code of Conduct committee members: {{ community.newcommunity.coc_committee }}{% else %} No Code of Conduct committee members list provided.{% endif %}</p>
+
+				    <p>{% if community.newcommunity.demographics %}<b>Community demographics:</b> {{ community.newcommunity.demographics }}{% else %}No community demographics provided.{% endif %}</p>
+
+				    <p>{% if community.newcommunity.demographics %}<b>Inclusive community practices:</b> {{ community.newcommunity.inclusive_practices }}{% else %}No inclusive community practices provided.{% endif %}</p>
+			    </div>
+			</div>
+		{% endif %}
+		<p>Round participation information</p>
+		<ul>
+			<li><a href="{{ participation_info.get_absolute_url }}">Community landing page</a></li>
+			<li>Number of interns funded: {{ participation_info.interns_funded }}</li>
+			<li>Funding details: {{ participation_info.intern_funding_details }}</li>
+			{% if community.humanitarian_community %}<li><b>Humanitarian open source community.</b></li>{% endif %}
+			{% if community.general_funding_application %}<li>Humanitarian issues the community addresses: {{ community.general_funding_application }}</li>{% endif %}
+			{% if community.additional_sponsors %}<li>Community sponsors Outreachy might want to ask for internship funding: {{ community.additional_sponsors }}</li>{% endif %}
+			{% if community.open_science_community %}<li><b>Open science community.</b></li>{% endif %}
+			{% if community.open_science_funder_questions %}
+			<li>
+				<p>Alignment with Wellcome Trust sponsorship goals:</p>
+				<p>{{ community.open_science_funder_questions|linebreaksbr }}</p>
+			</li>{% endif %}
+			{% if community.open_science_practices %}
+			<li>
+				<p>Community open science practices:</p>
+				<p>{{ community.open_science_practices|linebreaksbr }}</p>
+			</li>{% endif %}
+		</ul>
+		<div class="container">
+			<div class="row">
+				<div class="col">
+				{% if not participation_info.is_approved and not current_round.lateprojects.has_passed %}
+						<form action="{{ participation_info.get_approve_url }}" method="post">
+							{% csrf_token %}
+							<input type="submit" class="btn btn-success m-2" value="Approve Community" />
+						</form>
+				{% endif %}
+				</div>
+				<div class="col">
+					{% if not participation_info.is_rejected %}
+						<a href="{{ participation_info.get_reject_url }}" class="btn btn-warning m-2">Reject Community</a>
+					{% endif %}
+				</div>
+			</div>
+		</div>
+	{% endif %}
+{% endif %}
+
+{% endwith %}
+{% endblock %}

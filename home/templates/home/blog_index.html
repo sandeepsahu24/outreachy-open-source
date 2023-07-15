@@ -1,0 +1,35 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+{% load wagtailroutablepage_tags %}
+{% load humanize %}
+{% load static %}
+
+{# XXX: This is not CSS, but this is the only generic block our base.html has in <head> #}
+{% block extra_css %}
+<link rel="alternate" type="application/atom+xml" href="{% routablepageurl self "feed" %}">
+{% endblock %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+<!-- This blog index includes microformats2 h-feed and h-entry annotations,
+     as specified at http://microformats.org/wiki/h-feed -->
+<div class="h-feed">
+<h1 class="p-name">{{ self.title }}</h1>
+
+<p><a href="{% routablepageurl self "feed" %}"><img src="{% static 'Feed_Noun_project_104-32px.png' %}"> Subscribe to the Outreachy blog RSS feed</a> or <a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce"><img src="{% static 'email-postbox-j4p4n-public-domain-32px.png' %}"> Sign up for our announcements mailing list</a>.</p>
+
+{# feed is a django.utils.feedgenerator.SyndicationFeed subclass, so .items is a list of dictionaries #}
+{% for post in feed.items %}
+<div class="h-entry">
+<h2><a class="u-url p-name" href="{{ post.link }}">{{ post.title }}</a></h2>
+<p>Posted
+<time class="dt-published" datetime="{{ post.pubdate|date:"c" }}">{{ post.pubdate|naturaltime }}</time>
+{% if post.author_name %}by <span class="p-author">{{ post.author_name }}</span>{% endif %}
+</p>
+</div>
+{% endfor %}
+
+</div>
+{% endblock %}

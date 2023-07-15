@@ -1,0 +1,156 @@
+{% extends "base.html" %}
+{% load approval_status %}
+
+{% block title %}
+{{ view.kwargs.action|title }} mentor for {{ mentorapproval.project.short_title }}
+{% endblock %}
+
+{% block content %}
+{% with mentor=mentorapproval.mentor project=mentorapproval.project community=mentorapproval.project.project_round.community %}
+{% if view.kwargs.action|title == 'Submit' and mentorapproval.is_approved %}
+	<p><a href="{% url 'community-cfp' %}">Timeline and FAQ for Outreachy Communities</a> &gt;
+	<a href="{{ project.project_round.get_absolute_url }}">{{ project.project_round.community.name }}</a> &gt;
+	Submit or Edit a Project
+	</p>
+	<p>Steps to submit or edit a Project:
+	<ol>
+		<li>Project details</li>
+		<b><li>Mentor profile</li></b>
+		<li>Project skills</li>
+		<li>Project communication channels</li>
+	</ol>
+	You can always edit this information later.
+	</p>
+{% endif %}
+
+{% if view.kwargs.action == 'submit' %}
+	<h1>Mentor Profile</h1>
+
+	<p>Project: <a href="{{ project.get_preview_url }}">{{ project.short_title }}</a></p>
+
+	<p>Mentors provide need to provide some information about their project so it can be reviewed and approved by their community coordinators. By filling out this information, you understand that some of your personal information will be shown to Outreachy applicants so they can contact you for mentorship.</p>
+
+	{% include "home/snippet/privacy_policy.html" %}
+
+	<p><strong>Please read these questions carefully.</strong></p>
+
+{% elif view.kwargs.action == 'approve' %}
+	<h1>Confirm Mentor</h1>
+
+	<p>Project: <a href="{{ project.get_preview_url }}">{{ project.short_title }}</a></p>
+	<p>"{{ mentor.public_name }}" &lt;{{ mentor.account.email }}&gt;</p>
+
+{% elif view.kwargs.action == 'reject' %}
+	<h1>Reject Mentor</h1>
+
+	<p>Project: <a href="{{ project.get_preview_url }}">{{ project.short_title }}</a></p>
+	<p>"{{ mentor.public_name }}" &lt;{{ mentor.account.email }}&gt;</p>
+
+{% else %}
+	<h1>Mentor Profile</h1>
+
+	<p>Project: <a href="{{ project.get_preview_url }}">{{ project.short_title }}</a></p>
+
+	<p>"{{ mentor.public_name }}" &lt;{{ mentor.account.email }}&gt;</p>
+	{% include "home/snippet/mentor_info.html" with approval=mentorapproval only %}
+{% endif %}
+
+<p><form action="" method="post">
+	{% csrf_token %}
+	{{ form.media }}
+	{% for field in form %}
+		{% if 'Have you been a mentor for Outreachy before' in field.label_tag %}
+			<h3>Mentor Profile Details</h3>
+			<hr>
+		{% endif %}
+		{% if 'Understands applicant time commitment' in field.label_tag %}
+			<div class="form-group card">
+				<div class="card-body bg-warning">
+					{{ field.errors }}
+					{{ field }}
+					I commit to volunteer <b>5 to 10 hours a week</b> from {{ project.project_round.participating_round.contributions_open }} to {{ project.project_round.participating_round.contributions_close }}
+				</div>
+				<div class="card-footer bg-white">Mentors must commit to helping applicants and reviewing their contributions. Mentors spend 5 to 10 hours per week during the contribution period ({{ project.project_round.participating_round.contributions_open }} to {{ project.project_round.participating_round.contributions_close }}).</div>
+			</div>
+		{% elif 'Understands intern time commitment' in field.label_tag %}
+			<div class="form-group card">
+				<div class="card-body bg-warning">
+					{{ field.errors }}
+					{{ field }}
+					I commit to volunteer <b>5 hours a week</b> from {{ project.project_round.participating_round.internstarts }} to {{ project.project_round.participating_round.internends }}.
+				</div>
+				<div class="card-footer bg-white">Mentors must commit to volunteer at least 5 hours per week during the internship period ({{ project.project_round.participating_round.internstarts }} to {{ project.project_round.participating_round.internends }}).</div>
+			</div>
+		{% elif 'Instructions read' in field.label_tag or 'Understands ' in field.label_tag %}
+			<div class="form-group card">
+				<div class="card-body">
+					{{ field.errors }}
+					{{ field }}
+					{{ field.help_text|safe }}
+				</div>
+			</div>
+		{% elif 'Employer' in field.label_tag %}
+			<h3>Employment info</h3>
+			<hr>
+
+			<p>Outreachy organizers collect statistics about who mentors work for. This allows us to report anonymized statistics to Outreachy sponsors about how many of their employees participate as Outreachy mentors. The statistics help Outreachy organizers secure continued sponsorship.</p>
+			<p>Some sponsors may want to offer training and other leadership opportunities to employees who are Outreachy mentors. We will ask for your consent before sharing your contact information with Outreachy sponsors.</p>
+			<p>If you do not want to share your employer with Outreachy organizers, type 'Prefer not to say'.</p>
+			<p>Your employer will not be displayed to Outreachy applicants.</p>
+			<div class="form-group card">
+				<div class="card-header">
+					{{ field.label_tag }}
+				</div>
+				<div class="card-body">
+					{{ field.errors }}
+					{{ field }}
+				</div>
+				{{ field.errors }}
+			</div>
+		{% elif 'Delete' in field.label_tag %}
+			<div class="form-group card border-warning">
+				<div class="card-header text-white bg-warning">
+					Delete this item #{{ sponsor_number }}?
+				</div>
+				<div class="card-body">
+					{{ field }} Check this box to delete this item.
+					{{ field.help_text|safe }}
+				</div>
+			</div>
+		{% else %}
+			<div class="form-group card">
+				{{ field.errors }}
+				<div class="card-header">
+					{{ field.label_tag }}
+				</div>
+				<div class="card-body">
+					{{ field }}
+				</div>
+				{% if field.help_text %}
+					<div class="card-footer bg-white">{{ field.help_text|safe }}</div>
+				{% endif %}
+			</div>
+		{% endif %}
+	{% endfor %}
+	<input type="submit" class="btn btn-{% if view.kwargs.action == 'withdraw' %}warning{% elif view.kwargs.action == 'reject' %}danger{% else %}success{% endif %}" value="{{ view.kwargs.action|title }}" />
+</form></p>
+
+{% endwith %}
+{% endblock %}
+
+{% block extra_css %}
+	<link rel="stylesheet" href="//code.jquery.com/ui/1.12.1/themes/base/jquery-ui.css">
+{% endblock %}
+
+{% block extra_js %}
+	<script src="https://code.jquery.com/jquery-1.12.4.js"></script>
+	<script src="https://code.jquery.com/ui/1.12.1/jquery-ui.js"></script>
+	<script>
+		$(function() {
+			var suggested_employers = {{ employers }};
+			$("#id_employer").autocomplete({
+				source: suggested_employers
+			});
+		});
+	</script>
+{% endblock %}

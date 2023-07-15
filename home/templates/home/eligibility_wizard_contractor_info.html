@@ -1,0 +1,64 @@
+{% extends "base.html" %}
+
+{% block title %}
+Are you eligible to apply to Outreachy?
+{% endblock %}
+
+{% block content %}
+<h1>Outreachy Eligibility Checking</h1>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+<h2>Contractors and Consultants</h2>
+
+<p>A contractor (or consultant) is paid to work on projects. They may work with multiple clients. Once the project is finished, the client can choose whether to hire them again.</p>
+
+<p>Outreachy needs to know your weekly time commitments to clients from <b>{{ current_round.internstarts }} until {{ current_round.sfc_payment_last_date|date:"F d, Y" }}</b>.
+
+<p>
+If you will not be accepting client work during those dates, say 'No' to "Will you be doing contract work during the Outreachy internship period?" Otherwise say 'Yes'.
+</p>
+
+<p><b>Active contractors and consultants</b></p>
+
+<p>
+If you already know the hours per week you will work from {{ current_round.internstarts }} until {{ current_round.sfc_payment_last_date|date:"F d, Y" }}, fill that in the "Average number of hours spent on contractor business" field.
+</p>
+
+<p>
+Otherwise, use this form to estimate the number of hours per week you will work for clients.
+</p>
+
+<p>
+Time spent on business development and marketing count towards your weekly hours.
+Not all contractors or consultants will spend time on business development or marketing.
+If you do not do these activities, only count the number of hours per week you spend on client work.
+</p>
+
+<p>
+Do not count the Outreachy internship hours in your average number of contracting hours per week.
+</p>
+
+<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<hr>
+
+<form action="" method="post">{% csrf_token %}
+{{ wizard.form.media }}
+{{ wizard.management_form }}
+{% if wizard.form.forms %}
+    {{ wizard.form.management_form }}
+    {% for form in wizard.form.forms %}
+        {% include "bootstrap_card_form.html" with form=form only %}
+	<hr>
+    {% endfor %}
+{% else %}
+    {% include "bootstrap_card_form.html" with form=wizard.form only %}
+{% endif %}
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.first }}">First step</button>
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.prev }}">Previous step</button>
+{% endif %}
+<input type="submit" class="btn btn-primary" value="Next step"/>
+</form>
+
+{% endblock %}

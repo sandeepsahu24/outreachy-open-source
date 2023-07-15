@@ -1,0 +1,147 @@
+{% with internship=section my_round=section.round %}
+	{% load wagtailcore_tags %}
+	<h1>My Outreachy Internship</h1>
+
+	<p>You {% if internship.is_internship_active %}are participating{% else %}had participated{% endif %} in the <a href="{% pageurl my_round %}">{{ my_round.official_name }}</a>.
+	You can view your profile, project, and mentor on <a href="{% url 'alums' %}">the intern list page</a>.
+	To change your profile, click the 'Edit Profile' button above.
+	</p>
+
+	<h2>Internship Contract</h2>
+	{% if not internship.intern_contract %}
+		<p><b>Please sign your <a href="{% url 'intern-agreement' round_slug=my_round.slug community_slug=internship.project.project_round.community.slug project_slug=internship.project.slug%}">internship contract</a>.</b></p>
+	{% else %}
+		<p>You signed your internship contract on {{ internship.intern_contract.date_signed }}. <a href="{% url 'intern-contract-export' %}">Download your contract</a>.</p>
+	{% endif %}
+
+	<h2>Outreachy Opportunities Mailing List</h2>
+	<p>
+	You may want to sign up for the <a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/opportunities">opportunities mailing list</a>.
+	The list is open to current interns, alums, current and past Outreachy mentors, and sponsors of Outreachy.
+	People use this list to send job postings, other internships, conference CFPs, or other opportunities.
+	If you see an opportunity that might help your fellow Outreachy interns, please send it to the list!
+	<p>
+
+	<h2>Internship Documentation</h2>
+
+	<p>
+	Details about your internship are documented in the <a href='{% url 'docs-internship' %}'>Internship Guide</a>.
+	</p>
+
+	{% if internship.is_internship_active %}
+		<h2>Internship Dates</h2>
+		{% if not internship.intern_has_custom_dates %}
+			<p>Your Outreachy internship starts on {{ my_round.internstarts }} and ends on {{ my_round.internends }}.{% if internship.is_internship_active %} <a href="/mentor/mentor-faq/#internship-delays">Internships can be extended</a> by up to five weeks if your mentor feels you are not putting in a full-time (30 hours a week effort), or you need to take more than a week off from your internship. Please have your mentor <a href="{% url 'contact-organizers' %}">discuss any extensions</a> or changes to your start date with the Outreachy organizers.{% endif %}</p>
+		{% else %}
+			<p>Your Outreachy internship has custom start or end dates, or custom feedback dates.</p>
+			<p>Your internship will start on {{ internship.intern_starts }} and end on {{ internship.intern_ends}}.{% if internship.is_internship_active %} <a href="/mentor/mentor-faq/#internship-delays">Internships can be extended</a> by up to five weeks from the official end date of {{ my_round.internends }}. Please have your mentor <a href="{% url 'contact-organizers' %}">discuss any further extensions</a> or changes to the your start date with the Outreachy organizers.{% endif %}</p>
+		{% endif %}
+	{% endif %}
+
+	{% if not internship.has_final_payment_passed %}
+		<h2 id="feedback">Internship Feedback</h2>
+		<p>The Outreachy organizers want to ensure that all interns get the support they need from their mentors. You will be asked to provide mentor feedback on specific dates, which coincide with when your mentor is giving feedback on your internship efforts.</p>
+		<p>The feedback form also collects information about how you view your own progress in the internship. This is important to provide, especially if your mentor has previously asked for an extension for your internship. The feedback form also offers a way for interns to request additional help or support.</p>
+		<p>The feedback is private and completely optional. Your feedback about your mentors will only be seen by the Outreachy organizers. We will discuss the feedback with you before contacting your mentors about how to improve their mentorship.</p>
+
+		{% if internship.is_initial_feedback_on_mentor_open %}
+			<p><a href="{% url 'initial-intern-feedback' %}"><button type="button" class="btn btn-info">Submit Feedback #1</button></a></p>
+		{% endif %}
+		{% if internship.is_feedback_2_form_open_to_intern %}
+			<p><a href="{% url 'midpoint-intern-feedback' %}"><button type="button" class="btn btn-info">Submit Feedback #2</button></a></p>
+		{% endif %}
+		{% if internship.is_feedback_3_form_open_to_intern %}
+			<p><a href="{% url 'feedback-3-from-intern' %}"><button type="button" class="btn btn-info">Submit Feedback #3</button></a></p>
+		{% endif %}
+		{% if internship.is_final_feedback_on_mentor_open %}
+			<p><a href="{% url 'final-intern-feedback' %}"><button type="button" class="btn btn-info">Submit Feedback #4</button></a></p>
+		{% endif %}
+		<p>Feedback and payment status:</p>
+		<ul>
+			{% if internship.feedback1fromintern %}
+				<li>You submitted feedback #1.</li>
+			{% endif %}
+			{% if internship.feedback1frommentor %}
+				<li>Your mentor submitted feedback #1 on {{ internship.feedback1frommentor.find_version_mentor_edited.revision.date_created }}</li>
+			{% endif %}
+			{% if not internship.feedback1fromintern and not internship.feedback1frommentor %}
+				<li>Neither you nor your mentor have submitted feedback #1.</li>
+			{% endif %}
+			{% if internship.feedback1frommentor.organizer_payment_approved %}
+				<li>The Outreachy organizers have requested that the Software Freedom Conservancy pay your initial stipend.</li>
+			{% endif %}
+			{% if internship.feedback2fromintern %}
+				<li>You submitted feedback #2.</li>
+			{% endif %}
+			{% if internship.feedback2frommentor %}
+				<li>Your mentor submitted feedback #2 on {{ internship.feedback2frommentor.find_version_mentor_edited.revision.date_created }}</li>
+			{% endif %}
+			{% if not internship.feedback2fromintern and not internship.feedback2frommentor %}
+				<li>Neither you nor your mentor have submitted feedback #2.</li>
+			{% endif %}
+			{% if internship.feedback2frommentor.organizer_payment_approved %}
+				<li>The Outreachy organizers have reviewed feedback #2. Your internship is in good standing.</li>
+			{% endif %}
+			{% if internship.feedback3fromintern %}
+				<li>You submitted feedback #3.</li>
+			{% endif %}
+			{% if internship.feedback3frommentor %}
+				<li>Your mentor submitted feedback #3 on {{ internship.feedback3frommentor.find_version_mentor_edited.revision.date_created }}</li>
+			{% endif %}
+			{% if not internship.feedback3fromintern and not internship.feedback3frommentor %}
+				<li>Neither you nor your mentor have submitted feedback #3.</li>
+			{% endif %}
+			{% if internship.feedback3frommentor.organizer_payment_approved %}
+				<li>The Outreachy organizers have reviewed feedback #3. Your internship is in good standing.</li>
+			{% endif %}
+			{% if internship.feedback4fromintern %}
+				<li>You submitted feedback #4.</li>
+			{% endif %}
+			{% if internship.feedback4frommentor %}
+				<li>Your mentor submitted feedback #4 on {{ internship.feedback4frommentor.find_version_mentor_edited.revision.date_created }}</li>
+			{% endif %}
+			{% if not internship.feedback4fromintern and not internship.feedback4frommentor %}
+				<li>Neither you nor your mentor have submitted feedback #4.</li>
+			{% endif %}
+			{% if internship.feedback4frommentor.organizer_payment_approved %}
+				<li>The Outreachy organizers have reviewed feedback #4. Your internship is in good standing.</li>
+			{% endif %}
+		</ul>
+
+		<p>Dates for you to give feedback on your internship:
+		<ul>
+			{% if internship.feedback3_due %}
+				<li>{{ internship.initial_feedback_due }} 4pm UTC - Feedback #1 is due</li>
+				<li>{{ internship.midpoint_feedback_due }} 4pm UTC - Feedback #2 is due</li>
+				<li>{{ internship.feedback3_due }} 4pm UTC - Feedback #3 is due</li>
+				<li>{{ internship.final_feedback_due }} 4pm UTC - Feedback #4 is due</li>
+			{% else %}
+				<li>{{ internship.initial_feedback_due }} 4pm UTC - Initial feedback is due</li>
+				<li>{{ internship.midpoint_feedback_due }} 4pm UTC - Midpoint feedback is due</li>
+				<li>{{ internship.final_feedback_due }} 4pm UTC - Final feedback is due</li>
+			{% endif %}
+		</ul>
+		</p>
+		<p>You can <a href="{% url 'contact-organizers' %}">contact Outreachy organizers</a> at any time to give informal feedback or ask for additional help.</p>
+	{% endif %}
+
+	{% with current_round=my_round %}
+		<h2>Intern Payment Schedule</h2>
+		{% include 'home/snippet/payment_schedule.html' %}
+	{% endwith %}
+
+	<p>Please note that your payment may be delayed for several reasons:
+	<ul>
+		<li>You did not supply a W8-BEN or W-9 form promptly.</li>
+		<li>Your payment account was in another person's name, and you needed to complete a third-party payment form.
+		That form must be approved by the Software Freedom Conservancy's Executive Director, Karen Sandler.
+		Payment cannot be processed until the third party payment form is approved.
+		Please notify Software Freedom Conservancy accounting ASAP if you have a different name on your account than the legal name you signed your contract with.
+		</li>
+		<li>You have an extension for your internship.
+		If your internship was extended for a specific number of weeks, your payments will be delayed by the same amount of time.
+		</li>
+	</ul>
+	</p>
+	<p>If you do not think your payment has been delayed for any of the reasons above, please wait at least ten days past the payment deadline before contacting the Software Freedom Conservancy accounting.</p>
+{% endwith %}

@@ -1,0 +1,76 @@
+Outreachy week 1: Assignments for mentors & interns
+
+Welcome to the first week of your Outreachy internship! We're happy to support you through this journey.
+
+This is the first of several messages Outreachy organizers will send throughout the internship period. Each message will have a section for interns and a section for mentors. We hope this transparency provides better understanding of expectations and goals for both parties and ultimately creates a successful internship!
+
+Please read the sections below to ensure that the first internship feedback (due on {{ current_round.initialfeedback }}) is successful. Contact us at organizers@outreachy.org anytime with questions or comments.
+
+Internship chats
+----------------
+
+Every two weeks during the internship, interns, mentors, coordinators, and Outreachy organizers have a chat on the Outreachy Zulip server. The chat schedule is here:
+
+{{ request.scheme }}://{{ request.get_host }}{% url 'docs-internship' %}#chats
+
+The first internship chat will take place on {{ current_round.week_two_chat_text_date|date:"D M d, Y" }} {{ current_round.week_two_chat_text_date|time:"H:i" }} UTC on {{ current_round.week_two_chat_text_url }}
+
+Both interns and mentors should attend this first chat.
+
+Mentor Goals
+------------
+
+Please review the expectations for mentors during week 1 and 2 of the Outreachy internship:
+
+{{ request.scheme }}://{{ request.get_host }}{% url 'docs-community' %}#week-1-expectations
+
+Week 1 tips:
+
+ - contact Outreachy organizers organizers@outreachy.org if your intern hasn't been in contact with you about their first tasks by the end of week one
+ - if you need any help or advice, you can email the mentors mailing list, or ask on the private mentors stream on the Outreachy Zulip chat
+ - you've got this!
+
+Intern Goals
+------------
+
+Week 1 goals:
+
+ - Get in touch with your mentor
+ - Discuss how to approach your first tasks
+ - Ask your mentor questions about your project
+ - Join your free and open source software community's public community chat channels and introduce yourself
+ - Sign up for the Outreachy Zulip chat (you should have received an email invitation)
+ - Set up your blog, and link to it on your Outreachy profile: https://outreachy.org/account
+ - Write a blog post introducing yourself (see guidelines below)
+
+Week 1 tips:
+
+ - Contact Outreachy organizers organizers@outreachy.org if you can't get a hold of your mentor after 2 days of trying to reach them and/or if your mentor is being unresponsive to questions
+ - You've got this!
+
+Week 1 Blog
+-----------
+
+During your internship, you're expected to blog every two weeks. Please take a look at our blog guidelines and blogging schedule:
+
+{{ request.scheme }}://{{ request.get_host }}{% url 'docs-internship' %}#blog
+
+The first blog topic is "Introduce yourself". Please read the blog prompt instructions:
+
+{{ request.scheme }}://{{ request.get_host }}{% url 'docs-internship' %}#blog-week-1
+
+Questions?
+---
+
+If you have any questions, please ask us! You can get help by:
+
+ - Talking to your mentor
+ - Talking to your community coordinator
+ - Asking questions on the Zulip chat #internship procedures or #help stream
+ - Direct messaging Outreachy organizers Sage Sharp or Anna e só
+ - Emailing organizers@outreachy.org
+
+Let us know what your questions are!
+
+Outreachy Organizers
+{% include 'home/email/footer-mentor-intern-coordinator.txt' %}

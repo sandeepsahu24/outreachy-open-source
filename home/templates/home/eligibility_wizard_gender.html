@@ -1,0 +1,92 @@
+{% extends "base.html" %}
+
+{% block title %}
+Outreachy Initial Application
+{% endblock %}
+
+{% block content %}
+<h1>Outreachy Initial Application</h1>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+<h2>Gender identity</h2>
+
+<p>
+The answer to these questions will only be seen by the <a href="{% url 'contact-us' %}">Outreachy organizers</a>.
+It will not be shared with mentors, coordinators, or other applicants.
+</p>
+
+<p>
+If you do not understand what a term means, don't check it or say yes.
+</p>
+
+<p>
+When you get to the questions about your gender identity, please check all that apply.
+</p>
+<p>
+If you are questioning whether you identify as a particular gender, please check that gender identity.
+We understand that you may be just starting your gender exploration.
+You are valid and welcome here.
+</p>
+<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<hr>
+
+<form action="" method="post">{% csrf_token %}
+{{ wizard.form.media }}
+{{ wizard.management_form }}
+{% if wizard.form.forms %}
+    {{ wizard.form.management_form }}
+    {% for form in wizard.form.forms %}
+        {% include "bootstrap_form.html" with form=form only %}
+	<hr>
+    {% endfor %}
+{% else %}
+    {% for field in form.visible_fields %}
+	    {% if 'identify as transgender' in field.label_tag or 'identify as genderqueer' in field.label_tag %}
+		    <div class="form-group card">
+			    {{ field.errors }}
+			    <div class = "card-header">
+				    {{ field.label_tag }}
+			    </div>	    
+			    <div class = "card-body">
+				    {{ field }}
+			    </div>
+			    {% if field.help_text %}
+				    <div class="card-footer bg-white">{{ field.help_text|safe }}</div>
+			    {% endif %}
+		    </div>
+	    {% elif 'Man:' in field.label_tag %}
+		    <div class="form-group card">
+			    <div class = "card-header">
+				    <p>What gender do you identify as? Check all that apply.</p>
+			    </div>
+			    <div class = "card-body">
+				    <p>
+				    {{ field.errors }}
+				    {{ field.label_tag }}
+				    {{ field }}
+				    </p>
+	    {% else %}
+			    <p>
+			    {{ field.errors }}
+			    {{ field.label_tag }}
+			    {{ field }}
+			    </p>
+	    {% endif %} 
+	    {% if 'Self identify' in field.label_tag %}
+		    </div>
+	    </div>
+	    {% endif %} 
+    {% endfor %}
+    {% for hidden in form.hidden_fields %}
+	{{ hidden }}
+    {% endfor %}
+{% endif %}
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.first }}">First step</button>
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.prev }}">Previous step</button>
+{% endif %}
+<input type="submit" class="btn btn-primary" value="Next step"/>
+</form>
+
+{% endblock %}

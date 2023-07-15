@@ -1,0 +1,143 @@
+{% extends "base.html" %}
+
+{% block title %}
+Outreachy Initial Application
+{% endblock %}
+
+{% block content %}
+<h1>Outreachy Initial Application</h1>
+<img src="https://www.outreachy.org/media/images/bot-eligibility.original.png" class="float-right">
+<p>
+Welcome to Outreachy!
+</p>
+
+<p>
+You are applying for the {{ current_round.official_name }}.
+</p>
+
+<p>
+Before you fill out your application, please read the following:
+</p>
+
+<ul>
+	<li><a href="{% url 'docs-applicant' %}#eligibility">Are you eligible for Outreachy?</a></li>
+	<li><a href="{% url 'docs-applicant' %}#initial-application">Application instructions</a></li>
+	<li><a href="{% url 'docs-applicant' %}#essay-questions">List of essay questions</a></li>
+	<li><a href="{% url 'docs-applicant' %}#essay-tips">Tips for writing strong essays</a></li>
+</ul>
+
+<p>You cannot save your initial application. You have to fill it out all at once. Make sure you have a stable internet connection.</p>
+
+<h2>General Eligibility</h2>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<hr>
+
+<form action="" method="post">{% csrf_token %}
+{{ wizard.form.media }}
+{{ wizard.management_form }}
+{% for field in form.visible_fields %}
+	{% if 'Are you eligible to work' in field.label_tag %}
+		<div class="form-group card">
+			{{ field.errors }}
+			<div class = "card-header">
+				Are you eligible to work for 30 hours a week in ALL the countries you will be living in from 
+				{{ current_round.internstarts|date:"F d, Y" }} to {{ current_round.sfc_payment_last_date|date:"F d, Y" }}?
+			</div>	    
+			<div class = "card-body">
+				{{ field }}
+			</div>
+			<div class="card-footer bg-white">
+				<p><b>Student visas</b>: Please note that in some countries, students studying abroad on a student visa may not be eligible to work full-time (30 hours a week). If you are on a student visa, please double check the hours and dates of the internship with your school counselors before applying.</p>
+				<p><b>Spouse visas</b>: In some countries, spousal visas may not allow spouses to work. Please contact your immigration officer if you have any questions about whether your visa allows you to work full-time (30 hours a week).</p>
+				<p><b>International Travel</b>: Outreachy interns are not required to work while they are traveling internationally. If you travel for more than 1 week, you may need to extend your internship. Internships can be extended for up to five weeks with prior approval from your mentor and the Outreachy Organizers.</p>
+			</div>
+		</div>
+	{% elif 'Do you have a student visa' in field.label_tag %}
+		<div class="form-group card">
+			{{ field.errors }}
+			<div class = "card-header">
+				Do you have a student visa that limits the dates that you can work 30 hours a week from {{ current_round.internstarts|date:"F d, Y" }} to {{ current_round.internends|date:"F d, Y" }}?
+			</div>	    
+			<div class = "card-body">
+				{{ field }}
+			</div>
+			<div class="card-footer bg-white">
+				<p>If you are not a student, say 'No'.</p>
+				<p>If you do not have a visa, say 'No'.</p>
+				<p>If you have a student visa that restricts when you can work, or how many hours per week you can work, say 'Yes'.</li>
+			</div>
+		</div>
+	{% elif 'Will you be 18 years' in field.label_tag %}
+		<div class="form-group card">
+			{{ field.errors }}
+			<div class = "card-header">
+				Will you be 18 years or older on {{ current_round.internstarts|date:"F d, Y" }}?
+			</div>	    
+			<div class = "card-body">
+				{{ field }}
+			</div>
+		</div>
+	{% elif 'Are you a citizen' in field.label_tag %}
+		<div class="form-group card">
+			{{ field.errors }}
+			<div class = "card-header">
+				{{ field.label_tag }}
+			</div>	    
+			<div class = "card-body">
+				{{ field }}
+			</div>
+			<div class="card-footer bg-white">
+				<p>If you are living in Crimea, Cuba, Iran, North Korea, or Syria, say yes.</p>
+
+				<p>If you are a citizen or national of Cuba, Iran, North Korea, or Syria, say yes. Citizens and nationals of those countries should say yes, even if you are not currently living in that country.</p>
+
+				<p>Outreachy's fiscal parent, Software Freedom Conservancy, is a 501(c)(3) charitable non-profit in the United States of America. As a U.S. non-profit, Conservancy must ensure that funds are not sent to countries under U.S. sanctions programs, such as Cuba, Iran, North Korea, or Syria.</p>
+
+				<p>If you say yes, Outreachy will email you with additional questions.</p>
+			</div>
+		</div>
+	{% elif 'Are you a person or entity' in field.label_tag %}
+		<div class="form-group card">
+			{{ field.errors }}
+			<div class = "card-header">
+				{{ field.label_tag }}
+			</div>	    
+			<div class = "card-body">
+				{{ field }}
+			</div>
+			<div class="card-footer bg-white">
+				<p>Make sure to answer this question before going onto the next page of questions.</p>
+				<p>See the <a href="https://www.treasury.gov/resource-center/sanctions/Programs/Pages/Programs.aspx">US export control and sanctions list</a> for more information.</p>
+			</div>
+		</div>
+	{% else %}
+		<div class="form-group card">
+			{{ field.errors }}
+			<div class = "card-header">
+				{{ field.label_tag }}
+			</div>	    
+			<div class = "card-body">
+				{{ field }}
+			</div>
+			{% if field.help_text %}
+				<div class="card-footer bg-white">
+					<p>{{ field.help_text|safe }}</p>
+				</div>
+			{% endif %}
+		</div>
+	{% endif %} 
+{% endfor %}
+{% for hidden in form.hidden_fields %}
+{{ hidden }}
+{% endfor %}
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.first }}">First step</button>
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.prev }}">Previous step</button>
+{% endif %}
+<input type="submit" class="btn btn-primary" value="Next step"/>
+</form>
+
+{% endblock %}

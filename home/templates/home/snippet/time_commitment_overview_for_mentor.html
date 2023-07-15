@@ -1,0 +1,16 @@
+{% with tcs=application.get_time_commitments applicant=application.applicant final_application=applicant_contributions.0.get_application %}
+	<div class="card border mt-3" id="time-commitments">
+		<div class="card-header bg-secondary text-white">Time commitment information</div>
+		<div class="card-body">
+			<div class="card-text">
+				<p><strong>Applicant has {{ tcs.percentage_free }}% of their time free</strong> from full-time commitments during the internship period.</p>
+				<ul>
+					<li>If you want to pick an applicant as an intern who has less than 60% free time, make sure they are a very strong applicant.</li>
+					<li>Unless the Outreachy organizers are notified, all internships will use the standard start date ({{ application.application_round.internstarts }}) and end date ({{ application.application_round.internends }}).</li>
+					<li>You can discuss different start or end dates with your intern after the interns are announced on {{ application.application_round.internannounce }}</li>
+					<li>Internships can be extended for up to five weeks, but Outreachy organizers must approve the extension.</li>
+				</ul>
+			</div>
+		</div>
+	</div>
+{% endwith %}

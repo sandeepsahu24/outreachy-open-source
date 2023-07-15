@@ -1,0 +1,54 @@
+{% extends "base.html" %} 
+
+{% block title %}
+Active Internships Email Contacts
+{% endblock %}
+
+{% block content %}
+
+<h1>All Intern Emails</h1>
+
+<p>
+<textarea rows="{{ interns|length }}" class="form-control" readonly>{% for intern in interns %}
+{{ intern.applicant.applicant.email_address }}{% endfor %}</textarea>
+</p>
+
+<h1>All Mentor and Coordinator Emails</h1>
+
+<p>
+<textarea rows="{{ mentors_and_coordinators|length }}" class="form-control" readonly>{% for comrade in mentors_and_coordinators %}
+{{ comrade.email_address }}{% endfor %}</textarea>
+</p>
+
+<h1>Internship Contact List</h1>
+
+{% for intern in interns %}
+{% ifchanged %}<h2>{{ intern.project.project_round.participating_round.official_name }}</h2>{% endifchanged %}
+<hr>
+<p>Community: {{ intern.project.project_round.community }}<br>
+Project: "{{ intern.project.short_title }}"<br>
+{% if not intern.intern_contract %}
+	<span class="badge badge-pill badge-warning">Internship agreement not signed</span><br>
+{% endif %}
+{% if not intern.in_good_standing %}
+	<span class="badge badge-pill badge-warning">Internship terminated</span>
+{% elif not intern.intern_has_custom_dates %}
+	Standard internship dates
+{% else %}
+	Internship start date: {{ intern.intern_starts }}<br>
+	Initial feedback opens: {{ intern.initial_feedback_opens }}<br>
+	Initial feedback due: {{ intern.initial_feedback_due }}<br>
+	Mid-point feedback opens: {{ intern.midpoint_feedback_opens }}<br>
+	Mid-point feedback due: {{ intern.midpoint_feedback_due }}<br>
+	Final feedback opens: {{ intern.final_feedback_opens }}<br>
+	Final feedback due: {{ intern.final_feedback_due }}<br>
+	Internship end date: {{ intern.intern_ends }}
+{% endif %}</p>
+<p>Intern pronouns to use in emails to mentors and coordinators: {% if intern.applicant.applicant.pronouns_to_participants or intern.applicant.applicant.pronouns_public %}{{ intern.applicant.applicant.get_pronouns_html|safe }}{% else %}<a href='http://pronoun.is/they'>they/them/theirs</a>{% endif %}
+<br>Intern pronouns to use publicly: {% if intern.applicant.applicant.pronouns_public %}{{ intern.applicant.applicant.get_pronouns_html|safe }}{% else %}<a href='http://pronoun.is/they'>they/them/theirs</a>{% endif %}
+<br>Intern: {{ intern.applicant.applicant.email_address }},</p>
+<p>Mentors: {% for email in intern.mentor_emails %}{{ email }}, {% endfor %}<br>
+Coordinators: {% for email in intern.project.project_round.community.get_coordinator_email_list %}{{ email }}, {% endfor %}</p>
+{% endfor %}
+
+{% endblock %}

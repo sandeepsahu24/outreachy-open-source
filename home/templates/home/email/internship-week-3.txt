@@ -1,0 +1,118 @@
+Outreachy week 3: Assignments for mentors & interns
+
+Welcome to the third week of your Outreachy internship! We hope you're starting to get the hang of your internship. Please reach out to organizers@outreachy.org if you need additional help!
+
+We have some goals and assignments for both mentors and interns. Please read the sections below.
+
+Week 3 Theme
+------------
+
+The theme for this week is "Everyone Struggles."
+
+When newcomers to open source work with experienced contributors, the community project and their mentors may seem perfect to them. Interns often see finished contributions or finished code. That finished work can seem perfect, and that can be intimidating!
+
+A finished work is often the result of a lot of time and effort. The community members who worked on your project in the past probably struggled a lot!
+
+Your community's project may be a result of years of effort. It can take a lot of time to hunt down and fix subtle mistakes. Documentation is written one sentence at a time, and revised over and over again. Your community may have tried a lot of things that didn't work before improving their processes.
+
+It's important to remember that no one starts out being an "expert". Even your mentor was a newcomer to open source at one time. We all start out knowing nothing. We all learn, practice, and grow.
+
+Learning can be hard! We may struggle to understand something. We may make a lot of mistakes when we practice new skills. And that's okay, because everyone struggles.
+
+When you're struggling, it can be hard to reach out for help. But it's important to remember that Outreachy mentors are here to help you. It can bring mentors happiness or joy to share what they know!
+
+https://xkcd.com/1053/
+
+The first part of asking for help is figuring out what to ask. Sometimes you may not even be able to put your confusion into words. It's okay to reach out to your mentor and say, "I'm confused about something, but I don't know what questions to ask." Your mentor can ask questions about what you do know about the topic. They can help you understand what you do know, what you are confused about, and what you don't know.
+
+Sometimes the act of writing about what you are struggling with can help you find the answer. When you write about your confusion, you may think of a place you haven't searched for help. When you write about a problem you're stuck on, you may think of a way to fix it. Programmers often call this "rubber duck" debugging:
+
+https://en.wikipedia.org/wiki/Rubber_duck_debugging
+
+
+Week 3 Intern *Only* Chat
+-------------------------
+
+On {{ current_round.week_four_chat_text_date }} UTC we will host a chat for Outreachy interns *only*.
+
+We encourage interns share something you're currently stuck on. We'll talk about different ways to get unstuck and how to seek help. If you aren't currently struggling with something, we encourage you to come and help your fellow interns. Suggestions and tips are welcome!
+
+The chat will take place on the private Intern & Alums channel. We hope hosting the chat in a channel only for interns will make the interns feel more comfortable sharing their concerns.
+
+{{ current_round.week_four_stuck_chat_url }}
+
+Mentors - if you are an Outreachy alum, please don't read the chat log. Thanks!
+
+If you have a sensitive or confidential situation, please contact Outreachy organizers directly. Outreachy organizers are available via DM on the Outreachy Zulip chat, or via email to <organizers@outreachy.org>.
+
+
+Week 3 Mentor Questions
+-----------------------
+
+If you are a mentor who has questions or is struggling with something, please tell us!
+
+We encourage mentors to ask questions on the private mentor chat channel. Past Outreachy mentors and coordinators often have good advice. Other mentors and coordinators may also respond faster than Outreachy organizers.
+
+https://chat.outreachy.org/#narrow/stream/29-Mentors-.26.20Coordinators
+
+If you have a sensitive or confidential situation, please contact Outreachy organizers directly. Outreachy organizers are available via DM on the Outreachy Zulip chat, or via email to <organizers@outreachy.org>.
+
+
+Goals for Mentors
+-----------------
+
+Week 3 goals:
+
+ - Model to your intern that you're not perfect!
+ - Talk to your intern about a problem you're currently stuck on
+ - If your intern asks a question you don't know the answer to, tell them you don't know!
+ - Have a screen share with your intern to work through a problem together
+ - Introduce your intern to a new resource or a new person in the community they can ask questions
+ - Encourage your community members to talk about a time when they were really stuck
+
+Goals for Interns
+-----------------
+
+Week 3 goals:
+
+ - Write your blog post about an open source vocabulary term
+ - If you're stuck for more than 1 to 3 hours, ask your mentor
+ - Try asking a question on the public community forums or community chat
+ - Ask your mentor to talk about a problem they've been stuck on
+
+Week 3 Blog
+-----------
+
+For this week's blog post, please write about an open source vocabulary term. A "vocabulary term" could be a word, phrase, acronym, or concept.
+
+Write about a vocabulary term you didn't know before you applied to Outreachy. The vocabulary term you write about should be related to open source, your open source community, or your internship project.
+
+It's important to look back at what you have learned.
+
+Everyone starts out not knowing things. Sometimes there's a word or concept lots of people around you understand, but you don't. You might feel nervous, anxious, or scared to ask what it means. It can be intimidating to ask questions in the open source community chat.
+
+It's important to remember that other people might also be confused. There might be newcomers to the community who are also unsure what the vocabulary term means. When you ask what the vocabulary term means in the community chat, you will help other people who are also shy and unsure.
+
+Your blog post will also help future Outreachy applicants. They may be hesitant to ask questions of their mentors. Your blog post will explain that you didn't know a vocabulary term. You'll talk about where you found resources, or who you asked for help. This will reassure future applicants that it's okay not to know everything, and it's okay to ask questions. Everyone struggles!
+
+Here's some prompts that could get you started writing this blog post:
+
+ - What vocabulary term were you confused about during the Outreachy application process?
+ - The vocabulary term could be a word, phrase, acronym or concept
+ - The vocabulary term needs to be related to open source, your project, or your community
+ - What does that vocabulary term mean?
+ - Where did you see that vocabulary term used?
+ - Where did you look for a definition of that vocabulary term?
+ - What resources did you find? (Link to any online resources)
+ - Who did you ask about the definition of that vocabulary term?
+ - Were you hesitant to ask someone to define the vocabulary term? If so, why were you hesitant?
+ - What happened when you reached out for help?
+ - Were there other people who didn't understand that vocabulary term?
+ - What would you tell someone who is worried about asking questions?
+
+Think about your core values you talked about in your first blog post. Did any of your core values help you overcome your worries about asking for help?
+
+Again, if you have any questions, please contact us!
+
+Outreachy Organizers
+{% include 'home/email/footer-mentor-intern-coordinator.txt' %}

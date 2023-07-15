@@ -1,0 +1,78 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block body_class %}template-homepage{% endblock %}
+
+{% block content %}
+<p><a href="/apply/">Why apply to Outreachy?</a>
+&gt; Check Eligibility
+&gt; <a href="/apply/project-selection/">Find a Mentor and Internship Project</a></p>
+
+<h2>Outreachy Supports Diversity in Tech</h2>
+
+{% include 'home/snippet/diversity_statement.html' %}
+
+<h2 id='rules'>Outreachy Eligibility Rules</h2>
+
+{% include 'home/snippet/eligibility_rules.html' %}
+
+<h2>Additional Information to Provide</h2>
+
+<p>The initial application also includes four essay questions. Please <a href='{% url 'docs-applicant' %}#essay-questions'>read our essay tips carefully.</a></p>
+
+<h2>Intern Agreements and Forms</h2>
+
+<p>All accepted interns must sign an <a href="{% url 'generic-intern-contract-export' %}">intern agreement</a>. This is a legal document that certifies you are eligible to apply for Outreachy, and that all the eligibility information you supply in your application is truthful. All accepted interns will need to fill out either a W8-BEN or a W-9 tax form. It is fraud if you sign these legal documents after supplying incorrect information.</p>
+
+<p>If you are concerned about these forms, please note that Outreachy has experience with people in the middle of a legal name change and transgender people who cannot change their legal name. Only Outreachy organizers and the Software Freedom Conservancy accounting team will see these legal documents. Your mentors will not see your tax form or your signed intern agreement.</p>
+
+<h2>Applicant Guide</h2>
+<p>
+<a href='{% url 'docs-applicant' %}'>Please read our Applicant Guide.</a>
+The Applicant Guide includes tips for getting your initial application accepted. It also includes tips for preparing for the contribution period and writing your final application.
+</p>
+
+<h2>Internship Guide</h2>
+<p>
+The Outreachy <a href='{% url 'docs-applicant' %}'>Internship Guide</a> includes detailed information about the internship schedule, payment schedule, blogging schedule, and other details.
+</p>
+
+{% if not current_round.initial_applications_open.has_passed %}
+	<h2>Initial Application</h2>
+
+	<p>All Outreachy applicants will need to fill out an initial application.</p>
+
+	<p>The application system for Outreachy internships is currently closed.
+	The application system will be available when the application period opens on {{ current_round.initial_applications_open }} at 4pm UTC.
+	Initial applications are due on {{ current_round.initial_applications_close }} 4pm UTC.
+	</p>
+	<p>
+	To get an email when the round opens, subscribe to the
+	<a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce">Outreachy announcement mailing list</a>.</p>
+{% elif not current_round.initial_applications_close.has_passed %}
+	<h2>Initial Application</h2>
+
+	<p>All Outreachy applicants must fill out an initial application by {{ current_round.initial_applications_close }} at 4pm UTC.
+	Applicants will not be able to move onto the contribution period without an approved initial application.</p>
+
+	<p>It should only take you 5 minutes to 30 minutes.
+	If you're unsure if you meet the above eligibility rules,
+	it's better to fill out the initial application.
+	Once you've submitted your initial application, if you have any questions,
+	<a href="{% url 'contact-us' %}">you can contact the Outreachy applicant helpers.</a></p>
+
+	<p class="card-text"><a href="{% url 'eligibility' %}" class="btn btn-success">Start Your Initial Application</a></p>
+{% else %}
+	<h2>Initial Application</h2>
+
+	<p>All Outreachy applicants will need to fill out an initial application.</p>
+
+	<p>The application system for Outreachy internships is currently closed.
+	The application system will be available when the next application period opens.
+	</p>
+	<p>
+	To get an email when the round opens, subscribe to the
+	<a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce">Outreachy announcement mailing list</a>.</p>
+{% endif %}
+
+{% endblock %}

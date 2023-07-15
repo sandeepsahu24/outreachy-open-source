@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+Outreachy Initial Application
+{% endblock %}
+
+{% block content %}
+<h1>Outreachy Initial Application</h1>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+<h2>Open Source Experience</h2>
+<p>
+<b>Outreachy welcomes applicants who are new to open source.</b>
+</p>
+
+<p>
+It is okay if you have never contributed to open source before!
+The following questions help us gather statistics.
+</p>
+
+<p>
+We will not reject applications from people who are new to open source.
+You are welcome here.
+</p>
+
+<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<hr>
+
+<form action="" method="post">{% csrf_token %}
+{{ wizard.form.media }}
+{{ wizard.management_form }}
+{% for field in form.visible_fields %}
+    {% if 'Have you contributed to' in field.label_tag %}
+	    <div class="form-group card">
+		    {{ field.errors }}
+		    <div class = "card-header">
+			    {{ field.label_tag|safe }}
+		    </div>	    
+		    <div class = "card-body">
+			    {{ field }}
+		    </div>
+		    <div class="card-footer bg-white">
+			    <p>Outreachy welcomes applicants who are new open source. Saying 'no' to this question will not effect your chances of being accepted. It is only to gather statistics.</p>
+			    <p>Please exclude contributions that were made as part of a prior Outreachy application period.</p>
+		    </div>
+	    </div>
+    {% else %}
+	    <div class="form-group card">
+		    {{ field.errors }}
+		    <div class = "card-header">
+			    {{ field.label_tag|safe }}
+		    </div>	    
+		    <div class = "card-body">
+			    {{ field }}
+		    </div>
+		    {% if field.help_text %}
+			    <div class="card-footer bg-white">{{ field.help_text|safe }}</div>
+		    {% endif %}
+	    </div>
+    {% endif %} 
+{% endfor %}
+{% for hidden in form.hidden_fields %}
+{{ hidden }}
+{% endfor %}
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.first }}">First step</button>
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.prev }}">Previous step</button>
+{% endif %}
+<input type="submit" class="btn btn-primary" value="Next step"/>
+</form>
+
+{% endblock %}

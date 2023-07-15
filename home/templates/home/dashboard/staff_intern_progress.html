@@ -1,0 +1,68 @@
+{% with current_round=section %}
+<hr>
+<h2>Intern Progress</h2>
+<p>Standard mentor feedback dates:
+<ul>
+	<li><p>{{ current_round.initialfeedback }} - Feedback #1 is due. <a href="{% url 'initial-feedback-summary' round_slug=current_round.slug %}"><button class="btn btn-secondary">View Feedback #1</button></a> <a href="{% url 'initial-feedback-export' round_slug=current_round.slug %}"><button class="btn btn-success">Export Feedback #1</button></a></p></li>
+	<li><p>{{ current_round.midfeedback }} - Feedback #2 is due. <a href="{% url 'midpoint-feedback-summary' round_slug=current_round.slug %}"><button class="btn btn-secondary">View Feedback #2</button></a></p></li>
+	<li><p>{{ current_round.feedback3_due }} - Feedback #3 is due. <a href="{% url 'feedback-3-summary' round_slug=current_round.slug %}"><button class="btn btn-secondary">View Feedback #3</button></a> <a href="{% url 'feedback-3-export' round_slug=current_round.slug %}"><button class="btn btn-success">Export Feedback #3</button></a></p></li>
+	<li><p>{{ current_round.finalfeedback }} - Final feedback is due. <a href="{% url 'final-feedback-summary' round_slug=current_round.slug %}"><button class="btn btn-secondary">View Feedback #4</button></a></li>
+</ul>
+{% with interns=current_round.get_approved_intern_selections %}
+	<table class="table table-striped table-bordered">
+		<thread class="thread-dark">
+		<tr>
+			<th scope="col">Intern</th>
+			<th scope="col">Feedback #1 (mentor)</th>
+			<th scope="col">Feedback #1 (intern)</th>
+			<th scope="col">Feedback #2 (mentor)</th>
+			<th scope="col">Feedback #2 (intern)</th>
+			<th scope="col">Feedback #3 (mentor)</th>
+			<th scope="col">Feedback #3 (intern)</th>
+			<th scope="col">Feedback #4 (mentor)</th>
+			<th scope="col">Feedback #4 (intern)</th>
+		</tr>
+		</thread>
+		{% for intern in interns %}
+			<tr>
+				<td>{{ intern.applicant.applicant.public_name }}{% if not intern.in_good_standing %} <span class="badge badge-pill badge-warning">internship terminated</span>{% endif %}</td>
+				<td>
+					{% include 'home/snippet/mentor-feedback-status.html' with mentor_status=intern.get_mentor_initial_feedback_status extension_date=intern.feedback1frommentor.extension_date %}
+				</td>
+				<td>
+					{% include 'home/snippet/intern-feedback-status.html' with intern_status=intern.get_intern_initial_feedback_status %}
+				</td>
+				<td>
+					{% include 'home/snippet/mentor-feedback-status.html' with mentor_status=intern.get_mentor_midpoint_feedback_status extension_date=intern.feedback2frommentor.extension_date %}
+				</td>
+				<td>
+					{% include 'home/snippet/intern-feedback-status.html' with intern_status=intern.get_intern_midpoint_feedback_status %}
+				</td>
+				<td>
+					{% include 'home/snippet/mentor-feedback-status.html' with mentor_status=intern.get_feedback_3_status_from_mentor extension_date=intern.feedback3frommentor.extension_date %}
+				</td>
+				<td>
+					{% include 'home/snippet/intern-feedback-status.html' with intern_status=intern.get_feedback_3_status_from_intern %}
+				</td>
+				<td>
+					{% include 'home/snippet/mentor-feedback-status.html' with mentor_status=intern.get_feedback_4_status_from_mentor extension_date=intern.feedback4frommentor.extension_date %}
+				</td>
+				<td>
+					{% include 'home/snippet/intern-feedback-status.html' with intern_status=intern.get_feedback_4_status_from_intern %}
+				</td>
+			</tr>
+			{% if intern.intern_has_custom_dates %}
+				<tr>
+					<td>starts: {{ intern.intern_starts }}<br>ends: {{ intern.intern_ends }}</td>
+					<td>initial feedback opens: {{ intern.initial_feedback_opens }}</td>
+					<td>initial feedback due: {{ intern.initial_feedback_due }}</td>
+					<td>mid-point feedback opens: {{ intern.midpoint_feedback_opens }}</td>
+					<td>mid-point feedback due: {{ intern.midpoint_feedback_due }}</td>
+					<td>final feedback opens: {{ intern.final_feedback_opens }}</td>
+					<td>final feedback due: {{ intern.final_feedback_due }}</td>
+				</tr>
+			{% endif %}
+		{% endfor %}
+	</table>
+{% endwith %}
+{% endwith %}

@@ -1,0 +1,26 @@
+<tr id="app-{{ app.pk }}">
+	<td>{{ app.submission_date }}</td>
+	<td><p>{{ app.get_approval_status_display }}</p>
+	<td>
+		{% if app.reason_denied %}
+			<p>{{ app.get_reason_for_status }}</p>
+		{% else %}<p> - </p>
+		{% endif %}
+	</td>
+	<td>"{{ app.applicant.public_name }}" &lt;{{ app.applicant.account.email }}&gt;</td>
+	<td>
+		{% for essay_rating in app.get_essay_ratings %}
+			<p>{% include 'home/snippet/essay_rating.html' %}</p>
+		{% endfor %}
+		<button type="button" class="btn btn-secondary">
+		Quality: {{ app.essay_qualities.count }}
+		</button>
+		<p>{% if app.review_owner %}Owned by: {{ app.review_owner.comrade.public_name }}{% endif %}</p>
+	</td>
+	<td>
+		{% for red_flag_tuple in app.get_all_red_flags %}
+			<p>{% include 'home/snippet/red_flags_display.html' %}</p>
+		{% endfor %}
+	</td>
+	<td><a class='btn btn-info' href="{{ app.get_preview_url }}">Review Application</a></td>
+</tr>

@@ -1,0 +1,33 @@
+{% extends "base.html" %}
+{% load approval_status %}
+
+{% block title %}
+{{ coordinatorapproval.get_approval_status_display }} Coordinator for {{ coordinatorapproval.community }}
+{% endblock %}
+
+{% block content %}
+<p><a href="{% url 'community-cfp' %}">Timeline and FAQ for Outreachy Communities</a> &gt; <a href="{{ coordinatorapproval.community.get_preview_url }}">{{ coordinatorapproval.community.name }}</a> &gt; {{ coordinatorapproval.get_approval_status_display }} Coordinator</p>
+<h1>
+	{{ coordinatorapproval.get_approval_status_display }}
+	Coordinator for
+	<a href="{{ coordinatorapproval.community.get_preview_url }}">{{ coordinatorapproval.community }}</a>
+</h1>
+
+{% with c=coordinatorapproval.coordinator community=coordinatorapproval.community %}
+
+<p>"{{ c.public_name }}" &lt;{{ c.account.email }}&gt;</p>
+
+{% if coordinatorapproval.is_pending %}
+{% if coordinatorapproval|is_approver:request.user %}
+<a href="{{ coordinatorapproval.get_approve_url }}" class="btn btn-success">Approve Coordinator</a>
+<a href="{{ coordinatorapproval.get_reject_url }}" class="btn btn-warning">Reject Coordinator</a>
+{% endif %}
+{% endif %}
+
+<ul>
+	{% if c.pronouns_to_participants %}<li>Pronouns: {{ c.get_pronouns_display }}</li>{% endif %}
+	{% if c.timezone %}<li>Timezone: {{ c.get_timezone_display }}</li>{% endif %}
+</ul>
+
+{% endwith %}
+{% endblock %}

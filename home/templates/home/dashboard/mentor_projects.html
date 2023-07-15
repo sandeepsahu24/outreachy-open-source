@@ -1,0 +1,24 @@
+{% with current_round=section.current_round mentored_projects=section.mentored_projects communities=section.mentored_communities %}
+<h1>Your Mentored Project</h1>
+
+<p>
+Below is the project{{ mentored_projects|pluralize }} you are mentoring in {{ current_round.official_name }}.
+You can also <a href="{% url 'community-cfp' %}#mentor">submit another project</a>.
+</p>
+
+{% for project in mentored_projects %}
+
+	<h4 id="{{ project.slug }}">{{ project.short_title }}</h4>
+	{% include 'home/snippet/mentor_action.html' %}
+	{% if communities %}
+	<p>
+	You can also see the list of all applicants to the communities you're mentoring for:
+	</p>
+	<ul>
+	{% for participation in communities %}
+		<li>{{ participation.community.name }}: <a href="{% url 'community-applicants' round_slug=participation.participating_round.slug community_slug=participation.community.slug %}">see applicants</a> or <a href="{{ participation.get_preview_url }}">submit another project</a> or <a href="{{ participation.get_absolute_url }}">view the community projects page applicants see</a></li>
+	{% endfor %}
+	</ul>
+	{% endif %}
+{% endfor %}
+{% endwith %}

@@ -1,0 +1,73 @@
+{% extends "base.html" %}
+
+{% block title %}
+Outreachy Initial Application
+{% endblock %}
+
+{% block content %}
+<h1>Outreachy Initial Application</h1>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+<h2>Location and Nationality</h2>
+<p>
+<b>Outreachy is open to people around the world.</b>
+</p>
+
+<p>
+Outreachy interns will need to fill out a tax form. You will need to fill out a W-9 or a W8-BEN tax form. These questions will help us figure out which form you should use.
+</p>
+
+<p>
+Interns must put their legal names on tax forms. If you have concerns about using your legal name, <a href="{% url 'docs-applicant' %}#legal-name">read our FAQ.</a>
+</p>
+
+<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<hr>
+
+<form action="" method="post">{% csrf_token %}
+{{ wizard.form.media }}
+{{ wizard.management_form }}
+{% for field in form.visible_fields %}
+	{% if 'Will you be living in the United States of America' in field.label_tag %}
+		<div class="form-group card">
+			{{ field.errors }}
+			<div class = "card-header">
+				Will you be living in the United States of America at any time from
+				{{ current_round.internstarts|date:"F d, Y" }} to {{ current_round.sfc_payment_last_date|date:"F d, Y" }}?
+			</div>	    
+			<div class = "card-body">
+				{{ field }}
+			</div>
+			<div class="card-footer bg-white">
+				Note that the end date in this question extends past the end of internships to {{ current_round.sfc_payment_last_date|date:"F d, Y" }}.
+			</div>
+		</div>
+	{% else %}
+		<div class="form-group card">
+			{{ field.errors }}
+			<div class = "card-header">
+				{{ field.label_tag }}
+			</div>	    
+			<div class = "card-body">
+				{{ field }}
+			</div>
+			{% if field.help_text %}
+				<div class="card-footer bg-white">
+					{{ field.help_text|safe }}
+				</div>
+			{% endif %}
+		</div>
+	{% endif %} 
+{% endfor %}
+{% for hidden in form.hidden_fields %}
+{{ hidden }}
+{% endfor %}
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.first }}">First step</button>
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.prev }}">Previous step</button>
+{% endif %}
+<input type="submit" class="btn btn-primary" value="Next step"/>
+</form>
+
+{% endblock %}

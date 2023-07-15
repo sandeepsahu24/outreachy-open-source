@@ -1,0 +1,242 @@
+{% extends "base.html" %}
+
+{% block title %}
+Outreachy internships working with {{ community.name }}
+{% endblock %}
+
+{% block content %}
+
+{% with contributions=role.application.get_projects_contributed_to %}
+
+	{% if not current_round.contributions_close.has_passed and not approved_to_see_all_project_details and not mentors_pending_projects %}
+		{% if not current_round.contributions_open.has_passed %}
+		<p>The information about this community is currently only available to approved mentors and coordinators.
+		If your participation has been approved, you may need to <a href="{% url 'login' %}?next={{ request.path|urlencode }}">log in</a>.</p>
+
+		<p>If you are an Outreachy applicant, this information will be available once the
+		Outreachy contribution period starts on {{ current_round.contributions_open }} at 4pm UTC.
+		You can sign up for an email notification when the round opens by
+		<a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce">subscribing to the Outreachy announcements mailing list</a>.</p>
+		{% elif not user.comrade %}
+			You may need to <a href="{% url 'login' %}?next={{ request.path|urlencode }}">log in</a> to see this information.</p>
+		{% elif role.is_potential_applicant %}
+			<p>This information is only available to applicants who have their initial application approved.
+			The deadline for initial applications passed on {{ current_round.initial_applications_close }} at 4pm UTC</p>
+		{% elif role.is_rejected_applicant or role.is_pending_applicant %}
+			<p>This information is only available to applicants who have their initial application approved.
+			Check your <a href='{% url 'eligibility-results' %}'>initial application results</a> for more details.
+			</p>
+		{% endif %}
+
+	{% else %}{# allowed to see project details (this could be an approved mentor/coordinator before the contribution period opens or a person with an approved initial application after the contribution period opens) #}
+
+		{% if not current_round.contributions_open.has_passed %}
+			<div class="card border-info mb-3">
+				<div class="card-header text-white bg-warning">Contribution period is not open</div>
+				<div class="card-body">
+					<p class="card-text">
+					Information about projects are hidden from applicants until the contribution period opens.
+					Only mentors and coordinators can see this information.
+					</p>
+					<p class="card-text">
+					Please don't share this link until the contribution period opens on {{ current_round.contributions_open }} at 4pm UTC.
+					</p>
+				</div>
+			</div>
+		{% else %}
+			{% include "home/snippet/eligibility_prompts.html" %}
+		{% endif %}
+
+		{% if participation_info.is_pending %}
+			<div class="card border-info mb-3">
+				<div class="card-header text-white bg-warning">Pending community participation</div>
+				<div class="card-body">
+					<p class="card-text">
+					This community is not yet approved to participate in the Outreachy internship round.
+					Only mentors and coordinators can see this information.
+					</p>
+					<p class="card-text">
+					Please don't share this link until the community is approved.
+					</p>
+				</div>
+			</div>
+		{% endif %}
+
+		<p><a href="/apply/">Why apply to Outreachy?</a> &gt;
+		{% if role.is_potential_applicant %}
+			<a href="{% url 'eligibility' %}">Start your initial application</a>
+		{% elif role.needs_review %}
+			<a href="{% url 'eligibility-results' %}">Review your initial application</a>
+		{% else %}
+			<a href="/apply/eligibility/">Outreachy Eligibility Rules</a>
+		{% endif %}
+		{% if current_round.contributions_close.has_passed %}
+			&gt; <a href="/{{ current_round.slug }}/">{{ current_round.official_name }}</a>
+		{% else %}
+			&gt; <a href="/apply/project-selection/">Find a Mentor and Internship Project</a>
+		{% endif %}
+		&gt; {{ community.name }}</p>
+
+		<h1>Outreachy Internships with {{ community.name }}</h1>
+		{% if approved_to_see_all_project_details %}
+			<p><a href="{{ community.website }}">{{ community.name }}</a>
+			is a Free and Open Source Software (FOSS) community in the {{ current_round.official_name }} round.
+			</p>
+			<p>
+			Internships with other FOSS communities can be found on the <a href="{{ current_round.url }}">the current round page</a>.
+			</p>
+
+			<h2>What is {{ community.name }}?</h2>
+			<p>{{ community.description }}</p>
+
+			{{ community.long_description|safe }}
+		{% else %}
+			<p>Community details are hidden until you are approved to participate as a mentor or coordinator.</p>
+		{% endif %}
+
+		{% if approved_coordinator %}
+			{% with participation=participation_info %}
+				{% include 'home/snippet/coordinator_action.html' %}
+			{% endwith %}
+		{% endif %}
+
+
+		{% if ontime_projects or mentors_pending_projects %}
+			<h1>Open Projects</h1>
+
+			<p>Mentors for these projects are willing to work with new Outreachy
+			applicants. Please note that as the round goes on, mentors may close
+			their project to new applicants because they are already working with
+			many applicants. Make sure to start your required contribution as soon
+			as possible!</p>
+
+			<p>Each project mentor is looking for applicants who have
+			different skills. Sometimes a skill is a hard requirement for
+			an applicant to have. Other times, a mentor might prefer an
+			applicant to have a skill, but they would accept an applicant
+			as an intern who didn't have that skill. Some skills are "nice
+			to have" meaning it would be great if applicants have this
+			skill, but the mentor doesn't have a strong preference.</p>
+
+			<p>Each project will require a different level of experience with a
+			particular skill. Experience levels are indicated with numbers:
+			<br>
+				{% for i in example_skill.EXPERIENCE_CHOICES %}
+					<br><button type="button" class="btn btn-info">{{ forloop.counter }}</button> {{ i.1 }}
+				{% endfor %}
+			</p>
+			{% if approved_to_see_all_project_details %}
+				{% with projects=ontime_projects %}
+					{% include 'home/snippet/projects_for_round_page.html' %}
+
+				{% endwith %}
+			{% elif mentors_pending_projects %}
+				{% with projects=mentors_pending_projects %}
+					{% include 'home/snippet/projects_for_round_page.html' %}
+
+				{% endwith %}
+			{% else %}
+				<p>Full project details are hidden until you have been approved as a mentor by the community coordinator.</p>
+				<ul>
+				{% for project in approved_projects %}
+					<li>
+						<a href="{{ project.get_landing_url }}">{{ project.short_title }}</a>
+					</li>
+				{% endfor %}
+				</ul>
+			{% endif %}
+
+			{% if mentors_pending_projects %}
+				<h2>Your Pending Project{{ mentors_pending_projects|pluralize }}</h2>
+				{% for project in mentors_pending_projects %}
+					<h2 id="{{ project.slug }}">{{ project.short_title }}</h2>
+					{% include 'home/snippet/mentor_action.html' %}
+					<div class="card">
+						<div class="card-header">
+							<h4 class="mb-0">Detailed Project Information</h4>
+						</div>
+						<div class="card-body">
+							{% include "home/snippet/project_landing_snippet.html" %}
+						</div>
+					</div>
+					<br>
+				{% endfor %}
+			{% endif %}
+
+			<h1>Open Projects</h1>
+			{% if not approved_to_see_all_project_details and not mentors_pending_projects %}
+				{% include 'home/snippet/project_hidden.html' %}
+			{% elif mentors_pending_projects %}
+				<p>Details for the other approved projects are hidden until you are approved to participate as a mentor.</p>
+			{% else %}
+				{% with projects=ontime_projects %}
+				{% for project in projects %}
+					<hr id="{{ project.slug }}">
+					<h2>{{ project.short_title }}</h2>
+					{% if project in mentored_projects %}
+						{% include 'home/snippet/mentor_action.html' %}
+					{% endif %}
+					{% include "home/snippet/project_deadline.html" %}
+					{% if role.is_approved_applicant %}
+						{% if project in contributions %}
+							<p><a class='btn btn-success' href="{{ project.get_contributions_url }}">Update Contibutions and Apply to This Project</a></p>
+						{% else %}
+							<p><a class='btn btn-success' href="{{ project.get_contributions_url }}">Record Contibutions and Apply to This Project</a></p>
+						{% endif %}
+					{% endif %}
+					{% if role.is_approved_applicant or role.is_volunteer %}
+							<div class="card">
+								<div class="card-header">
+									<h4 class="mb-0">Detailed Project Information</h4>
+								</div>
+								<div class="card-body">
+									{% include "home/snippet/project_landing_snippet.html" %}
+								</div>
+							</div>
+						<br>
+					{% endif %}
+				{% endfor %}
+				{% endwith %}
+			{% endif %}
+		{% endif %}
+
+		{% if closed_projects %}
+			<h1>Closed Projects</h1>
+			<p>These projects are closed to new applicants because the mentors are already working with many applicants. Applicants who are already working with a mentor are encouraged to complete their contributions and submit an application for the project.</p>
+			{% with projects=closed_projects project_status="closed " %}
+				{% include 'home/snippet/projects_for_round_page.html' %}
+			{% endwith %}
+			{% for project in closed_projects %}
+				<hr id="{{ project.slug }}">
+				<h2>{{ project.short_title }}</h2>
+				{% include "home/snippet/project_deadline.html" %}
+				{% if role.is_approved_applicant %}
+					{% if project in contributions %}
+						<p><a class='btn btn-success' href="{{ project.get_contributions_url }}">Update Contibutions and Apply to This Project</a></p>
+					{% else %}
+						<p><a class='btn btn-success' href="{{ project.get_contributions_url }}">Record Contibutions and Apply to This Project</a></p>
+					{% endif %}
+				{% endif %}
+				{% if role.is_approved_applicant or role.is_volunteer %}
+					<div id="project-closed-accordion-{{ forloop.counter }}" class="accordion">
+						<div class="card">
+							<div class="card-header" role="tab" id="project-closed-heading-{{ forloop.counter }}">
+								<h4 class="mb-0"><a data-toggle="collapse" data-parent="project-closed-accordion-{{ forloop.counter }}" href="#project-closed-{{ forloop.counter }}">+ Detailed Project Information</a></h4>
+							</div>
+							<div class="collapse card-body" id="project-closed-{{ forloop.counter }}">
+								{% include "home/snippet/project_landing_snippet.html" %}
+							</div>
+						</div>
+					</div>
+					<br>
+				{% elif mentors_pending_projects %}
+					<p>Details for the other approved projects are hidden until you are approved to participate as a mentor.</p>
+				{% else %}
+					{% include 'home/snippet/project_hidden.html' %}
+				{% endif %}
+			{% endfor %}
+		{% endif %}
+	{% endif %}
+{% endwith %}
+
+{% endblock %}

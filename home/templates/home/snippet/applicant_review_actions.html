@@ -1,0 +1,74 @@
+{% if role.is_organizer %}
+	<h1>Staff Actions</h1>
+
+	<table class="table table-bordered">
+		<tr>
+			<th scope="col">Approve applicant?</th>
+			<th scope="col">Request essay revision?</th>
+			<th scope="col">Reject applicant?</th>
+			<th scope="col">Delete application?</th>
+		</tr>
+		<tr>
+			<td>
+				{% if not application.is_approved %}
+				<form action="{{ application.get_approve_url }}" method="post">
+				    {% csrf_token %}
+				    <input type="submit" class="btn btn-success" value="Approve Application" />
+				</form>
+				{% endif %}
+			</td>
+			<td>
+				{% if application.is_pending %}
+				<form method="post" action="{% url 'request-essay-revision' applicant_username=application.applicant.account.username %}">
+					{% csrf_token %}
+					<input type='submit' class='btn btn-info' value="Request Essay Revision">
+				</form>
+				{% endif %}
+			</td>
+			<td>{% if not application.is_rejected %}
+					<a class='btn btn-warning' href="{{ application.get_reject_url }}">Reject Application</a>
+				{% endif %}
+			</td>
+			<td>
+				<form method="post" action="{% url 'delete-application' applicant_username=application.applicant.account.username %}">
+					{% csrf_token %}
+					<input type='submit' class='btn btn-danger' value="Delete Application">
+				</form>
+			</td>
+		</tr>
+		<tr>
+			<td>
+			</td>
+			<td>
+				<form method="post">
+					{% csrf_token %}
+					{% include 'home/snippet/applicant_essay_rating_form.html' %}
+				</form>
+			</td>
+		</tr>
+	</table>
+{% endif %}
+{% if role.is_reviewer %}
+	<h2>Initial Application Review Owner</h2>
+	{% if application.review_owner %}
+		<p>Owner for this application: <b>{{ application.review_owner.comrade.public_name }}.</b>
+	{% else %}
+		<p>No reviewer owns this application. If no one has claimed this application, feel free to claim it as something you're working on. 
+	{% endif %}
+	Assign an application to a staff member when all additional information has been gathered and/or reviewed, and the application is ready to be approved or denied.</p>
+
+	<p>
+	<form method="post">
+		{% csrf_token %}
+		<div class="dropdown">
+			<button class="btn btn-secondary dropdown-toggle" type="button" id="review-owner-menu" data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">Assign application owner</button>
+			<div class="dropdown-menu" aria-labelledby="review-owner-menu">
+				{% for reviewer in application.get_possible_reviewers %}
+					<button class="dropdown-item" formaction="{% url 'set-review-owner' applicant_username=application.applicant.account.username owner=reviewer.comrade.account.username %}">{{ reviewer.comrade.public_name }}</button>
+				{% endfor %}
+				<button class="dropdown-item" formaction="{% url 'set-review-owner' applicant_username=application.applicant.account.username owner=None %}">Clear reviewer</button>
+			</div>
+		</div>
+	</form>
+	</p>
+{% endif %}

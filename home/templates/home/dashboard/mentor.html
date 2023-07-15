@@ -1,0 +1,136 @@
+{% with mentor_relationships=section %}
+	<h1>Your mentee{{ mentor_relationships|pluralize }}</h1>
+	{% for rel in mentor_relationships %}
+		{% ifchanged %}
+			<h2>{{ rel.round.official_name }}</h2>
+		{% endifchanged %}
+		{% if not rel.round.internannounce.has_passed %}
+		<div class="card border-info mb-3">
+			<div class="card-header bg-warning">Keep intern decisions private from mentees until {{ rel.round.internannounce }} at 4pm UTC</div>
+			<div class="card-body">
+				<p class="card-text">
+				You have selected {{ rel.intern_name }} as an intern for the {{ rel.community_name }} project "<a href="{{ rel.intern_selection.project.project_round.get_absolute_url }}#{{ rel.intern_selection.project.slug }}">{{ rel.project_name }}</a>".</p>
+				<p class="card-text">
+				{% if rel.intern_selection.organizer_approved == True %}
+					Your intern selection has been approved by Organizers.</p>
+					<p class="card-text"><b>This internship has not been announced yet.
+					Please do not tell your mentee about their internship until after
+					{{ rel.round.internannounce }} at 4pm UTC.</b>
+				{% elif rel.intern_selection.organizer_approved == None %}
+					Your internship selection is pending Organizer review.</p>
+					<p class="card-text"><b>Please do not tell your mentee about their internship until after
+					{{ rel.round.internannounce }} at 4pm UTC.</b>
+					Outreachy organizers need time to seek additional funding, review all interns,
+					and resolve any conflicts where two mentors accept the same intern.
+					In order to ensure we don't communicate the wrong information,
+					we need all mentors to keep their intern selection private until the official announcement date.</p>
+				{% else %}
+					Your internship selection was not approved by the Outreachy Organizers.</p>
+					<p class="card-text"><b>Please do not communicate our decision until after
+					{{ rel.round.internannounce }} at 4pm UTC.</b>
+					You may want to encourage them to apply again in a future round.</p>
+				{% endif %}
+			</div>
+			</div>
+		{% else %}
+			<p>Accepted interns are announced on the <a href="{% url 'alums' %}">Outreachy alums page</a>.</p>
+		{% endif %}
+
+		{% if rel.intern_selection.organizer_approved == True %}
+			<p>You {% if not rel.intern_selection.is_internship_active %}mentored{% else %}are mentoring{% endif %} {{ rel.intern_name }} for the {{ rel.community_name }} project "<a href="{{ rel.intern_selection.project.project_round.get_absolute_url }}#{{ rel.intern_selection.project.slug }}">{{ rel.project_name }}</a>".{% if rel.intern_selection.is_internship_active %} Please <a href="/mentor/mentor-faq/#during-the-internship">review our tips</a> for ensuring your mentee is successful.{% endif %}</p>
+
+			{% if rel.intern_selection.is_internship_active %}
+				<h3>Co-mentors</h3>
+				{% with mentors=rel.intern_selection.mentors.all %}
+				{% if mentors|length == 1 %}
+				<p>You don't have any co-mentors for this intern.</p>
+				{% else %}
+				<p>Your co-mentors for this intern are:</p>
+				<ul>
+					{% for mentor in mentors %}
+					{% if mentor != rel.mentor %}
+					<li>{{ mentor.mentor.email_address }}</li>
+					{% endif %}
+					{% endfor %}
+				</ul>
+				{% endif %}
+
+				<p><a href="{% url 'mentorapproval-invite' round_slug=rel.round.slug community_slug=rel.intern_selection.project.project_round.community.slug project_slug=rel.intern_selection.project.slug %}" class="btn btn-info">Invite a co-mentor</a></p>
+				{% endwith %}
+
+				<h3>Internship Dates</h3>
+				{% if not rel.intern_selection.intern_has_custom_dates %}
+					<p>Outreachy internships start on {{ rel.round.internstarts }} and end on {{ rel.round.internends }}.{% if rel.intern_selection.is_internship_active %} <a href="/mentor/mentor-faq/#internship-delays">Internships can be extended</a> by up to five weeks if interns are not putting in a full-time (30 hours a week effort), or the intern needs to take more than a week off from their internship. Please <a href="{% url 'contact-organizers' %}">discuss any extensions</a> or changes to the intern start date with the Outreachy organizers.{% endif %}</p>
+				{% else %}
+					<p>Your intern has custom internship dates. Their internship will start on {{ rel.intern_selection.intern_starts }} and end on {{ rel.intern_selection.intern_ends}}.{% if rel.intern_selection.is_internship_active %} <a href="/mentor/mentor-faq/#internship-delays">Internships can be extended</a> by up to five weeks from the official end date of {{ rel.round.internends }}. Please <a href="{% url 'contact-organizers' %}">discuss any further extensions</a> or changes to the intern start date with the Outreachy organizers.{% endif %}</p>
+				{% endif %}
+			{% endif %}
+
+			{% if not rel.intern_selection.has_final_payment_passed %}
+				<h3 id="feedback">Internship Feedback</h3>
+
+				<p>Outreachy organizers require <a href="/mentor/mentor-faq/#mid-point-and-final-review">mentor feedback</a> at four points during the internship. We must receive successful feedback from one mentor in order for the intern to be paid their stipends on time.</p>
+
+				<p>Only one mentor can submit feedback for one intern. If you are co-mentoring an intern, please talk with your co-mentor to decide what your feedback should be.</p>
+
+				<p>Once you submit your feedback form and you mark your intern as being able to be paid, the form cannot be edited. If you ask for an extension for this internship milestone, you will be able to update your answers after the extension is complete.</p>
+
+				{% if rel.intern_selection.is_initial_feedback_on_intern_open %}
+					<p><a href="{% url 'initial-mentor-feedback' username=rel.intern_selection.applicant.applicant.account.username %}"><button type="button" class="btn btn-info">Submit Feedback #1</button></a></p>
+				{% endif %}
+				{% if rel.intern_selection.is_feedback_2_form_open_to_mentor %}
+					<p><a href="{% url 'midpoint-mentor-feedback' username=rel.intern_selection.applicant.applicant.account.username %}"><button type="button" class="btn btn-info">Submit Feedback #2</button></a></p>
+				{% endif %}
+				{% if rel.intern_selection.is_feedback_3_form_open_to_mentor %}
+					<p><a href="{% url 'feedback-3-from-mentor' username=rel.intern_selection.applicant.applicant.account.username %}"><button type="button" class="btn btn-info">Submit Feedback #3</button></a></p>
+				{% endif %}
+				{% if rel.intern_selection.is_final_feedback_on_intern_open %}
+					<p><a href="{% url 'final-mentor-feedback' username=rel.intern_selection.applicant.applicant.account.username %}"><button type="button" class="btn btn-info">Submit Feedback #4</button></a></p>
+				{% endif %}
+
+				<p>Submitted feedback:</p>
+				<ul>
+				{% if rel.intern_selection.feedback1frommentor %}
+				<li><p>Feedback #1: {% if rel.intern_selection.feedback1frommentor.payment_approved %}<button type="button" class="btn btn-success">Initial payment approved</button>{% else %}<button type="button" class="btn btn-warning">Initial payment not approved</button>{% endif %}{% if rel.intern_selection.get_mentor_initial_feedback_status == rel.intern_selection.DUNNO %} Advice requested from Outreachy organizers.{% endif %}{% if rel.intern_selection.feedback1frommentor.request_extension %} Internship extension requested.{% endif %}{% if rel.intern_selection.feedback1frommentor.request_termination %} Termination requested for this internship.{% endif %}</p></li>
+				{% endif %}
+				{% if rel.intern_selection.feedback2frommentor %}
+					<li><p>Feedback #2: {% if rel.intern_selection.feedback2frommentor.payment_approved %}<button type="button" class="btn btn-success">Successful</button>{% else %}<button type="button" class="btn btn-warning">Not successful</button>{% endif %}{% if rel.intern_selection.get_mentor_midpoint_feedback_status == rel.intern_selection.DUNNO %} Advice requested from Outreachy organizers.{% endif %}{% if rel.intern_selection.feedback2frommentor.request_extension %} Internship extension requested.{% endif %}{% if rel.intern_selection.feedback2frommentor.request_termination %} Termination requested for this internship.{% endif %}</p></li>
+				{% endif %}
+				{% if rel.intern_selection.feedback3frommentor %}
+					<li><p>Feedback #3: {% if rel.intern_selection.feedback3frommentor.payment_approved %}<button type="button" class="btn btn-success">Final payment approved</button>{% else %}<button type="button" class="btn btn-warning">Final payment not approved</button>{% endif %}{% if rel.intern_selection.get_feedback_3_status_from_mentor == rel.intern_selection.DUNNO %} Advice requested from Outreachy organizers.{% endif %}{% if rel.intern_selection.feedback3frommentor.request_extension %} Extension requested for feedback #3 until {{ rel.intern_selection.feedback3frommentor.extension_date|date:"M d, Y" }}.{% endif %}{% if rel.intern_selection.feedback3frommentor.request_termination %} Termination requested for this internship.{% endif %}</p></li>
+				{% endif %}
+				{% if rel.intern_selection.feedback4frommentor %}
+					<li><p>Feedback #4: {% if rel.intern_selection.feedback4frommentor.payment_approved %}<button type="button" class="btn btn-success">Internship successfully completed</button>{% else %}<button type="button" class="btn btn-warning">Internship feedback not yet reviewed</button>{% endif %}{% if rel.intern_selection.get_mentor_final_feedback_status == rel.intern_selection.DUNNO %} Advice requested from Outreachy organizers.{% endif %}{% if rel.intern_selection.feedback4frommentor.request_extension %} Extension requested for feedback #4 until {{ rel.intern_selection.feedback4frommentor.extension_date|date:"M d, Y" }}.{% endif %}{% if rel.intern_selection.feedback4frommentor.request_termination %} Termination requested for this internship.{% endif %}</p></li>
+				{% endif %}
+				{% if not rel.intern_selection.feedback1frommentor and not rel.intern_selection.feedback2frommentor and not rel.intern_selection.feedback3frommentor and not rel.intern_selection.feedback4frommentor %}
+					<li>No feedback has been submitted yet.</li>
+				{% endif %}
+				</ul>
+
+				<p>Mentor feedback dates:
+				<ul>
+					{% if rel.intern_selection.feedback3_due %}
+						<li>{{ rel.intern_selection.initial_feedback_due }} 4pm UTC - Feedback #1 is due</li>
+						<li>{{ rel.intern_selection.midpoint_feedback_due }} 4pm UTC - Feedback #2 is due</li>
+						<li>{{ rel.intern_selection.feedback3_due }} 4pm UTC - Feedback #3 is due</li>
+						<li>{{ rel.intern_selection.final_feedback_due }} 4pm UTC - Feedback #4 is due</li>
+					{% else %}
+						<li>{{ rel.intern_selection.initial_feedback_due }} 4pm UTC - Initial feedback is due</li>
+						<li>{{ rel.intern_selection.midpoint_feedback_due }} 4pm UTC - Midpoint feedback is due</li>
+						<li>{{ rel.intern_selection.final_feedback_due }} 4pm UTC - Final feedback is due</li>
+					{% endif %}
+				</ul>
+				</p>
+				<h3>Intern Payment Schedule</h3>
+				<p>Payments are handled by Outreachy's parent organization, the Software Freedom Conservancy. Payments may be delayed by internship extensions, interns not returning tax paperwork in promptly, or approval delays for third-party payments (such as when a parent or spouse is the owner of a bank account). As a mentor, the best thing you can do to help your intern be paid on time is to respond promptly to requests for feedback.</p>
+				<p>Payment schedule:
+				<ul>
+					<li>{{ rel.round.initial_stipend_payment_deadline }} - Interns with a standard start date and successful feedback #1 from their mentor will receive the ${{ rel.round.initialpayment }} initial stipend</li>
+					<li>{{ rel.round.final_stipend_payment_deadline }} - Interns without extensions and successful feedback #3 from their mentor will receive the ${{ rel.round.finalpayment }} final stipend</li>
+				</ul>
+				</p>
+			{% endif %}
+			<a href="{% url 'mentor-contract' round_slug=rel.round.slug community_slug=rel.intern_selection.project.project_round.community.slug project_slug=rel.intern_selection.project.slug applicant_username=rel.intern_selection.applicant.applicant.account.username %}"><button type="button" class="btn btn-info">Export Mentor Contract</button></a>
+		{% endif %}
+	{% endfor %}
+{% endwith %}

@@ -1,0 +1,326 @@
+{% extends "base.html" %}
+
+{% block title %}
+Outreachy eligibility results
+{% endblock %}
+
+{% block content %}
+{% with tcs=role.application.get_time_commitments %}
+
+<p><b>Do not use the browser back button to update your initial application. You will experience website errors.</b> If you filled out the application wrong, <a href="{% url 'contact-applicant-help' %}">contact the Outreachy applicant helpers.</a></p>
+
+{% include 'home/set_gmail_filters_warning.html' %}
+
+{% if role.is_approved_applicant %}
+
+	<h1>Initial application approved for Outreachy</h1>
+
+
+	<p>Your initial application for Outreachy has been approved. You are approved to move onto the Outreachy contribution period.
+	</p>
+	<p>
+	The contribution period runs from {{ role.current_round.contributions_open }} to {{ role.current_round.contributions_close }} at 4pm UTC.
+	During the contribution phase, applicants complete Outreachy project tasks.
+	A completed or in-progress project task is called a contribution.
+	Submitting that project task for review by mentors is called making a contribution.
+	</p>
+	<p>
+	<b>You must make a contribution to be eligible for the internship.</b>
+	Some projects will have instructions for how to make your first contributions.
+	For other projects, you will need to contact the mentor to get directions on how to make your first contributions.
+	</p>
+	<p>
+	We encourage you to <a href='{% url 'docs' %}'>read our documentation</a>.
+	The <a href='{% url 'docs-applicant' %}'>Applicant Guide</a> has tips for being successful during the contribution period.
+	The <a href='{% url 'docs-internship' %}'>Internship Guide</a> has information about the intern payment schedule.
+	</p>
+	<p>
+	Then <a href='{% url 'project-selection' %}'>pick out one or two projects</a> to apply for.
+	The project list is now finalized.
+	</p>
+	<p>
+	If you get stuck at any time, please reach out to the mentors or <a href="{% url 'contact-applicant-help' %}">contact the Outreachy applicant helpers.</a>.
+	</p>
+	<p><a class='btn btn-success' href="{{ role.current_round.url }}">View Internship Projects</a></p>
+
+	{% include 'home/snippet/initial_application.html' %}
+
+{% elif role.is_rejected_applicant and role.application.reason_denied != 'TIME' and role.application.reason_denied|slice:":5" != 'ALIGN' %}
+	<h1>Initial application is not approved</h1>
+	<p>We're sorry, but your initial application was not accepted.
+	This may be due to one of two reasons:
+	</p>
+
+	<ul>
+		<li>You may not be eligible to be paid as a contractor of a non-profit based in the United States of America. This could be due to you not being eligible to work in all the countries you are living in during your internship, you being a legal minor (under 18), visa restrictions, U.S. sanctions programs, or U.S. export restrictions.</li>
+		<li>You were a Google Summer of Code intern, an Outreachy intern, or an intern with the Outreach Program for Women.</li>
+	</ul>
+
+	<p>
+	Some applicants may have provided incorrect information that caused their application to be rejected.
+	Due to the large number of applications we receive, we are not able to make corrections to applications.
+	Please apply to a future round, and make sure to answer yes or no to all questions on the first section of the initial application form.
+	</p>
+
+	{% include 'home/snippet/initial_application.html' %}
+{% elif role.is_rejected_applicant and role.application.reason_denied|slice:":5" == 'ALIGN' %}
+	<h1>Initial application is not approved</h1>
+	<p>We're sorry, but your initial application was not accepted.
+	</p>
+
+	<p>Outreachy's goal is to support people who are from groups
+	underrepresented in the technology industry of their country, and who
+	face discrimination and systemic bias.</p>
+
+	<p>Outreachy reviewed your essay answers. We found that your essays did
+	not sufficiently explain why your application is aligned with Outreachy
+	program goals.</p>
+
+	<p>We encourage you to review the initial application essay tips in the
+	<a href="{% url 'docs-applicant' %}#essay-tips">Applicant Guide</a>.</p>
+
+	<p>If you want to apply to a future internship cohort, please
+	<a href='https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce'>subscribe to the Outreachy announcement mailing list</a>.
+	Subscribers will receive an email when the initial application period
+	opens for future internship cohorts.</p>
+
+	<p>Outreachy internships run twice a year, May to August and December
+	to March. Applications for the May internship cohort open in February.
+	Applications for the December internship cohort open in August.</p>
+
+	{% include 'home/snippet/initial_application.html' %}
+{% elif role.is_rejected_applicant and role.application.reason_denied == 'TIME' %}
+
+	<h1>Initial application is not approved</h1>
+
+	<p>After reviewing your time commitments, we have determined you do not meet our minimum free time criteria.</p>
+	{% if tcs.school_time_commitments %}
+		<ul>{% with current_round=role.application.application_round %}{% include 'home/snippet/student_hemisphere.html' %}{% endwith %}</ul>
+	{% else %}
+		<p>Applicants who are not students are eligible for Outreachy
+		if they have {{ role.application.application_round.minimum_days_free_for_non_students }}
+		consecutive days free from full-time responsibility during the internship period.
+		</p>
+
+		<p>Applicants are not eligible if they have a technical part-time job during the
+		Outreachy internship, or they have already been accepted for
+		another full-time technical job.</p>
+
+	{% endif %}
+
+	<p>
+	We encourage you to apply another internship cohort!
+	</p>
+
+	<p>Please <a href='https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce'>subscribe to the Outreachy announcement mailing list</a>. Subscribers will receive an email when the initial application period opens for future internship cohorts.
+	</p>
+	<p>Outreachy internships run twice a year, May to August and December to March. Applications for the May internship cohort open in February. Applications for the December internship cohort open in August.</p>
+
+	<h2>Your Time Commitments:</h2>
+
+	{% include 'home/snippet/time_commitments.html' %}
+
+	<p>Outreachy organizers review each applicant's time commitments,
+	including volunteer work, employment, contract work, and
+	student's academic calendar.</p>
+	
+	{% if not tcs.school_time_commitments %}
+
+		<h2>Weeks Free From Full-Time Commitments</h2>
+
+		{% if tcs.free_period_start_date %}
+			<p>Based on the information you provided, you have the
+			following consecutive days free from full-time commitments:
+			<strong>{{ tcs.free_period_start_date|date:"F d, Y" }} to {{ tcs.free_period_end_date|date:"F d, Y" }}</strong>.</p>
+			<p>Outreachy interns must have a minimum number of {{ role.current_round.minimum_days_free_for_non_students }}  consecutive days free from full-time commitments
+			from {{ role.current_round.internstarts|date:"F d, Y" }} to {{ role.current_round.internends|date:"F d, Y" }}.
+			</p>
+			<p>You have {{ tcs.longest_period_free }} consecutive days free from full-time commitments.
+			We cannot lower the minimum number of days for any applicant.</p>
+		{% else %}
+			<p>Based on the information you provided, you have no
+			consecutive days free from full-time commitments during the Outreachy internship from
+			<strong>{{ role.current_round.internstarts|date:"F d, Y" }} to {{ role.current_round.internends|date:"F d, Y" }}</strong>.</p>
+			<p>Outreachy interns must have a minimum number of {{ role.current_round.minimum_days_free_for_non_students }} consecutive days free from full-time commitments.
+			</p>
+		{% endif %}
+	{% endif %}
+
+	<h2>Can I contest this result?</h2>
+	<p>
+	The Outreachy program put full-time commitment checking place
+	in order to ensure that both interns and mentors have a good experience.
+	Based on our past experience, interns with full-time commitments,
+	especially school time commitments, are less likely to have successful internships.
+	</p>
+	<p>
+	In the December 2014 - March 2015 Outreachy internship round, we had 19
+	interns who had classes during the majority of the internship time.
+	Two interns failed, two interns had to extend their internship by 2 weeks,
+	five interns had to extend their internships by 2 to 5 weeks.
+	</p>
+	<p>
+	Consequently, there was a 37% chance that the organization, mentor, and
+	intern will have a poor experience if an applicant who is full-time in
+	school is accepted. A poor internship experience typically means that
+	the Outreachy mentor chooses not to participate in the program again.
+	</p>
+	<p>
+	Outreachy has had a significant drop in the number of failures and
+	internship extensions since we implemented the full-time commitment
+	policies.
+	</p>
+	<p>
+	<strong>The Outreachy organizers are very firm about
+		the eligibility rules around time commitment requirements.</strong>
+	We cannot accept letters to excuse students from class work or late class enrollment letters.
+	We cannot accept manager approval for an employee to work for less than the hours in their employment contract.
+	We cannot allow students from schools in the Northern Hemisphere to participate in the December to March round.
+	We cannot allow students from schools in the Southern Hemisphere to participate in the May to August round.
+	We follow the term dates listed in official school calendars, and we cannot make exceptions.
+	</p>
+	<p>
+	We hope your time commitments change in the future such that you
+	are eligible to apply for Outreachy.
+	</p>
+	<p>
+	Please sign up for the
+	<a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce">Outreachy announcement mailing list</a>,
+	so you can be notified when the next application period opens.
+	</p>
+	<h2>What if the information is incorrect?</h2>
+	<p>
+	If any of the above information is incorrect, please <a href='{% url 'contact-applicant-help' %}'>contact the Outreachy applicant helpers.</a>
+	<p>
+	</p>
+	Please provide the following information:
+	</p>
+	<ul>
+		<li>User name: {{ request.user.username }}</li>
+		<li>Email address: {{ request.user.email }}</li>
+		<li>Which question or section was filled out incorrectly?</li>
+		<li>What is the correct information?</li>
+	</ul>
+
+	<p>
+	Please do not contest these results if the term dates provided match your academic calendar.
+	We use the term dates in official academic calendars.
+	We may have edited the term dates you provided to match your academic calendar.
+	</p>
+
+{% elif role.current_round.contributions_open.has_passed %}
+	<h1>Initial application is not approved</h1>
+	<p>
+	We're sorry to say your initial application was not approved.
+	Outreachy receives over 1,000 initial applications each round.
+	</p>
+
+	<p>We encourage you to apply early for a future round.
+	Please <a href='https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce'>subscribe to the Outreachy announcement mailing list</a>. Subscribers will receive an email when the initial application period opens for future internship cohorts.
+	</p>
+
+	<p>Outreachy internships run twice a year, May to August and December to March. Applications for the May internship cohort open in February. Applications for the December internship cohort open in August.</p>
+
+	{% include 'home/snippet/initial_application.html' %}
+{% else %}
+
+	<h1>Your initial application is under review</h1>
+
+	<p>
+	Your initial application for an Outreachy internship was received on {{ role.application.submission_date }}.
+	</p>
+
+	<p>
+	Your initial application is being reviewed by the Outreachy organizers.
+	We have already received a notification about your initial application, and there is no need for you to send an additional email.
+       	We may follow up with additional questions for you via email.
+	</p>
+
+	<p><b>Do not submit a second initial application.</b></p>
+
+	<p>
+	Application results will be available on {{ role.current_round.contributions_open }} at 4pm UTC.
+	All accepted applicants will receive an email notification on that date.
+	Applicants who are not accepted will not receive an email.
+	</p>
+
+	<p>
+	Please bookmark this page so that you can check the status of your initial application.
+	</p>
+
+	<h1>Preparation for the contribution phase</h1>
+
+	<p>
+	On {{ role.current_round.contributions_open }} at 4pm UTC, accepted applicants will move onto the contribution phase.
+	During the contribution phase, applicants make contributions to Outreachy projects.
+	</p>
+
+	<p>
+	We encourage you to <a href='{% url 'docs' %}'>read our documentation</a> while you're waiting for your initial application results.
+	The <a href='{% url 'docs-applicant' %}'>Applicant Guide</a> has tips for preparing for the contribution period.
+	The <a href='{% url 'docs-internship' %}'>Internship Guide</a> has information about the intern payment schedule.
+	</p>
+
+	<p>
+	You can see some of the <a href='{% url 'project-selection' %}'>potential projects</a> for this round.
+	Projects will be added until the contribution period opens on {{ role.current_round.contributions_open }} at 4pm UTC.
+	Do not contact mentors or coordinators until the contribution period opens.
+	</p>
+
+	<p>
+	Please sign up for the
+	<a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce">Outreachy announcement mailing list</a>,
+	so you can be notified of important deadlines.
+	</p>
+
+	<h2>What if my initial application is incorrect?</h2>
+	<p>
+	If any of the below information is incorrect, please <a href='{% url 'contact-applicant-help' %}'>contact the Outreachy applicant helpers.</a>
+	</p>
+
+	<p>
+	Please provide the following information:
+	</p>
+	<ul>
+		<li>User name: {{ request.user.username }}</li>
+		<li>Email address: {{ request.user.email }}</li>
+		<li>Which question or section was filled out incorrectly?</li>
+		<li>What is the correct information?</li>
+	</ul>
+
+	<div class="card border-info mb-3">
+		<div class="card-header text-white bg-info">
+			Information privacy policy
+		</div>
+		<div class="card-body">
+			<div class="card-text">
+				<p>
+				Initial applications gather some sensitive information:
+				</p>
+				<ul>
+					<li>Race/ethnicity of U.S. citizens and permanent residents</li>
+					<li>Gender</li>
+					<li>Country you will be living in during the internship</li>
+					<li>Essay answers</li>
+				</ul>
+
+				<p>
+				We hide the above sensitive information from this results page.
+				</p>
+				<p>
+				We will collect anonymized aggregate statistics about
+				gender, race, and country living in during the internship.
+				</p>
+				<p>
+				Once we have evaluated your initial application,
+				we will remove your sensitive data from our website.
+				</p>
+			</div>
+		</div>
+	</div>
+	{% include 'home/snippet/initial_application.html' %}
+
+{% endif %}
+
+{% endwith %}
+{% endblock %}

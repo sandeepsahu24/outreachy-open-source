@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block title %}
+Are you eligible to apply to Outreachy?
+{% endblock %}
+
+{% block content %}
+<h1>Outreachy Eligibility Checking</h1>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+<h2>Volunteer roles</h2>
+
+<p>Volunteering means helping without pay. You may volunteer to help a person, a group, or an organization. Examples of ways people volunteer: helping with an event, running a school club, playing in a band, or mentoring people.</p>
+<p>
+Include the volunteer roles you will have from <b>today until {{ current_round.sfc_payment_last_date|date:"F d, Y" }}</b>.
+</p>
+<p>Do not count the Outreachy internship as volunteer work.</p>
+<p>Do not count volunteer work that is less than 10 hours per week.</p>
+<p>Do not count unpaid internships.</p>
+
+<p>
+If you have less than three time commitments, leave additional ones blank.
+</p>
+
+<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<hr>
+
+<form action="" method="post">{% csrf_token %}
+{{ wizard.form.media }}
+{{ wizard.management_form }}
+{% if wizard.form.forms %}
+    {{ wizard.form.management_form }}
+    {% for form in wizard.form.forms %}
+	<div class="card border-info mb-3">
+		<div class="card-header text-white bg-info">Time Commitment Info #{{ forloop.counter }}</div>
+	</div>
+        {% include "bootstrap_card_form.html" with form=form only %}
+    {% endfor %}
+{% else %}
+    {% include "bootstrap_card_form.html" with form=wizard.form only %}
+{% endif %}
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.first }}">First step</button>
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.prev }}">Previous step</button>
+{% endif %}
+<input type="submit" class="btn btn-primary" value="Next step"/>
+</form>
+
+{% endblock %}

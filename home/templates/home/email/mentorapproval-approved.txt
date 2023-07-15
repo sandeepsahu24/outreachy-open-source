@@ -1,0 +1,22 @@
+{% with project=mentorapproval.project %}
+{% with community=project.project_round.community %}
+{% with current_round=project.round %}
+Approved as Outreachy mentor for {{ community.name }}
+
+Hi {{ recipient.display_name }},
+
+A {{ community.name }} coordinator has approved you as a mentor for this project:
+
+{{ request.scheme }}://{{ request.get_host }}{{ project.get_landing_url }}
+
+You now have access to applicant data and the ability to edit the project information. This email describes the next steps you need to take as a mentor.
+
+{% include 'home/email/snippet-volunteer-participation-approved.txt' with participation=mentorapproval.project.project_round %}
+Thank you for mentoring for {{ community.name }}! We appreciate the help you give Outreachy applicants and interns.
+
+Outreachy Organizers
+
+{% include 'home/email/footer-coordinator.txt' %}
+{% endwith %}
+{% endwith %}
+{% endwith %}

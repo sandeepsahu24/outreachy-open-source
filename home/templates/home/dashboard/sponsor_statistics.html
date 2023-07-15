@@ -1,0 +1,18 @@
+{% with current_round=section %}
+<hr>
+<h1>Statistics for sponsors</h1>
+
+<ul>
+	<li>{{ current_round.number_accepted_initial_applications }} total applicants with accepted initial applications</li>
+	<li>{{ current_round.number_contributors }} applicants have recorded starting a contribution</li>
+	<li>{{ current_round.number_final_applicants }} applicants have created a final application</li>
+	<li>{{ current_round.number_approved_communities_with_projects }} communties with {{ current_round.number_approved_projects }} projects</li>
+	<li>{{ current_round.number_funded_interns }} secured internship spots</li>
+</ul>
+
+<p><a href="{% url 'sponsor-info' round_slug=current_round.slug %}">Sponsor information</a> provided by coordinators.</p>
+
+<p><a href="{% url 'internship-cohort-statistics' %}">Demographic statistics</a> for current and past internship rounds.</p>
+
+<p><a href="{% url 'review-interns' round_slug=current_round.slug %}">Intern information</a></p>
+{% endwith %}

@@ -1,0 +1,112 @@
+{% extends "base.html" %}
+{% load approval_status %}
+
+{% block title %}
+Intern Funding
+{% endblock %}
+
+{% block content %}
+
+<div class="card border-warning mb-3">
+	<div class="card-header text-white bg-warning">Outreachy internship funding is required.</div>
+	<div class="card-body">
+		{% include 'home/snippet/funding_short_description.html' %}
+	</div>
+</div>
+
+<h1>Intern Funding</h1>
+
+<p>Please <a href="">read the community guide</a> for more information about intern funding.</p>
+
+<p>Sponsorship for one intern is $6,500 USD. Please list the dollar amount in the form below, not the number of interns.</p>
+
+<p>If you are applying for the Outreachy general fund, please list the sponsor as "Outreachy general fund".</p>
+
+<p>If your community has unused funds from a past sponsorship, please list the sponsor as "Credit - SPONSOR NAME". If you are unsure if your community has a credit, please contact Outreachy organizers.</p>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+{% if view.kwargs.action == 'submit' %}
+
+	{% if readonly_sponsorships %}
+	<p>The Outreachy organizers have indicated that you have the
+	following community funds, sponsorships, or credits
+	available:</p>
+	<ul>
+	{% for sponsorship in readonly_sponsorships %}
+	<li>
+		<p><strong>{{ sponsorship.funding_secured|yesno:"Confirmed,Tentative" }}</strong>:
+		${{ sponsorship.amount }} from {{ sponsorship.name }}
+		{% if not sponsorship.funding_secured %}
+		(decision by {{ sponsorship.funding_decision_date|date }})
+		{% endif %}
+		</p>
+		{{ sponsorship.additional_information|safe }}
+	</li>
+	{% endfor %}
+	</ul>
+	{% endif %}
+{% else %}
+<ul>
+	<li>Number of interns funded: {{ participation.interns_funded }}</li>
+</ul>
+{% endif %}
+
+{% if view.kwargs.action == "submit" %}
+<p><form action="" method="post">
+	{% csrf_token %}
+	{{ form.management_form }}
+	{% for f in form %}
+		{% with forloop.counter as sponsor_number %}
+		<h2>Sponsor #{{ sponsor_number }}</h2>
+		{{ f.media }}
+		{% for hidden in f.hidden_fields %}
+			{{ hidden }}
+		{% endfor %}
+		{% for field in f.visible_fields %}
+			{% if 'Funding secured' in field.label_tag %}
+				<div class="form-group card">
+					<div class="card-header">
+						Sponsor {{ sponsor_number }} - {{ field.label_tag }}
+					</div>
+					<div class="card-body">
+						{{ field }}
+						{{ field.help_text|safe }}
+					</div>
+				</div>
+			{% elif 'Delete' in field.label_tag %}
+				<div class="form-group card border-warning">
+					<div class="card-header text-white bg-warning">
+						Delete Sponsor {{ sponsor_number }}?
+					</div>
+					<div class="card-body">
+						{{ field }} Check this box to delete this sponsorship information.
+						{{ field.help_text|safe }}
+					</div>
+				</div>
+			{% else %}
+				<div class="form-group card">
+					{{ field.errors }}
+					<div class="card-header">
+						Sponsor {{ sponsor_number }} - {{ field.label_tag }}
+					</div>
+					<div class="card-body">
+						{{ field }}
+					</div>
+					{% if field.help_text %}
+						<div class="card-footer bg-white">{{ field.help_text|safe }}</div>
+					{% endif %}
+				</div>
+			{% endif %}
+		{% endfor %}
+		{% endwith %}
+	{% endfor %}
+	<div class="my-5">
+		<input type="submit" class="btn btn-{% if view.kwargs.action == 'withdraw' %}warning{% elif view.kwargs.action == 'reject' %}danger{% else %}success{% endif %}" value="{{ view.kwargs.action|title }}" />
+	</div>
+</form></p>
+{% else %}{# action is something other than submit #}
+{% include "home/snippet/action_form.html" %}
+{% endif %}
+
+{% endblock %}

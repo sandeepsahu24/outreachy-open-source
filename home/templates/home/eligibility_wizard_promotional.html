@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+
+{% block title %}
+Outreachy Initial Application
+{% endblock %}
+
+{% block content %}
+<h1>Outreachy Initial Application</h1>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+<h2>How did you find us?</h2>
+<p>
+The answer to the following question will only be seen by the <a href="{% url 'contact-us' %}">Outreachy organizers</a>.
+It will not be shared with mentors, coordinators, or other applicants.
+</p>
+<p>Step {{ wizard.steps.step1 }} of {{ wizard.steps.count }}</p>
+<hr>
+
+<form action="" method="post">{% csrf_token %}
+{{ wizard.form.media }}
+{{ wizard.management_form }}
+{% if wizard.form.forms %}
+    {{ wizard.form.management_form }}
+    {% for form in wizard.form.forms %}
+        {% include "bootstrap_form.html" with form=form only %}
+	<hr>
+    {% endfor %}
+{% else %}
+        {% include "bootstrap_card_form.html" with form=wizard.form only %}
+{% endif %}
+
+<h2>Review Your Application</h2>
+
+<div class="card border mt-3" id="essay-rating">
+	<div class="card-header bg-warning text-white">Please double check your answers</div>
+	<div class="card-body">
+		<div class="card-text">
+			<p><b>Are you ready to submit your application?</b></p>
+			
+			<p>The button below will submit your application.</p>
+			<p>You will not be able to edit your application after you submit it.</p>
+			<p>Please carefully review your answers. You can review your answers by using the 'Previous step' button below.</p>
+			<p>Make sure you answered all 'yes or no' questions.</p>
+			<p>Do not skip questions.</p>
+			<p>Once you are sure your answers are correct, click the 'Submit Initial Application' button below.</p>
+		</div>
+	</div>
+</div>
+<br>
+{% if wizard.steps.prev %}
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.first }}">First step</button>
+<button name="wizard_goto_step" class="btn btn-secondary" type="submit" value="{{ wizard.steps.prev }}">Previous step</button>
+{% endif %}
+<input type="submit" class="btn btn-success" value="Submit Initial Application"/>
+</form>
+
+{% endblock %}

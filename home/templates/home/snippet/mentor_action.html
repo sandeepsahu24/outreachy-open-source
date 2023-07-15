@@ -1,0 +1,71 @@
+<div class="card border-info mb-3">
+	<div class="card-header text-white bg-info">Mentor actions</div>
+	<div class="card-body">
+		{% if project.is_approved %}
+			{% if project.round.initial_applications_open.has_passed %}
+				<p class="card-text">This project is approved.
+				You should promote your project listing:
+				<a href="{% url 'project-selection' %}#{{ project.project_round.community.slug }}"><pre>{{ request.scheme }}://{{ request.get_host }}{% url 'project-selection' %}#{{ project.project_round.community.slug }}</pre></a>
+				</p>
+				<p>
+				{{ project.get_applicants_and_contributions_list|length }} applicant{{ project.get_applicants_and_contributions_list|pluralize }} recorded their contributions
+				</p>
+
+				<p>
+				{{ project.get_applications|length }} applicant{{ project.get_applications|pluralize }} submitted a final application
+				</p>
+				<p>
+				Please note: You can only accept an applicant as an intern if they have recorded their contributions and submitted a final application. If you have an applicant who has been making contributions but not recording it, you can tell them to record their contributions at this link:</p>
+				<p><pre>{{ request.scheme }}://{{ request.get_host }}{{ project.get_contributions_url }}</pre></p>
+				<p>
+				{{ current_round.contributions_close }} 4pm UTC is the deadline for applicants to record contributions and create a final application.
+				</p>
+			{% else %}
+				<p class="card-text">This project is approved.
+				Once initial applications open on {{ project.round.initial_applications_open }}, you can
+				promote your project listing:
+				<a href="{% url 'project-selection' %}#{{ project.project_round.community.slug }}"><pre>{{ request.scheme }}://{{ request.get_host }}{% url 'project-selection' %}#{{ project.project_round.community.slug }}</pre></a></p>
+			{% endif %}
+			{% if project.project_round.is_approved %}
+				<p class="card-text">
+				<a class="btn btn-primary" href="{{ project.get_applicants_url }}">Review Project Applicants</a>
+				</p>
+				<p class="card-text">
+				<a class="btn btn-primary" href="{% url 'community-applicants' round_slug=current_round.slug community_slug=project.project_round.community.slug %}">Review Community Applicants</a>
+				</p>
+			{% else %}
+				<p class="card-text">
+				You cannot review applicants until the community is approved to participate in Outreachy.
+				</p>
+			{% endif %}
+		{% elif project.is_pending %}
+			<p class="card-text">This project is pending.
+				Once applications are open and your project is approved, you can
+				<a href="{{ project.project_round.get_absolute_url }}#{{ project.slug }}">promote your project listing</a>.</p>
+			<p class="card-text">After your project is approved, you will be able to review project applicants.
+				</p>
+		{% endif %}
+		<p class="card-text">
+		<a class="btn btn-primary" href="{{ project.get_submit_url }}">Update Project Details</a>
+		</p>
+		<p class="card-text">
+		<p class="card-text">
+		<a class="btn btn-primary" href="{{ project.get_submit_url }}#contributors-welcome">Close project to new contributors</a>
+		</p>
+		<p class="card-text">
+		<a class="btn btn-primary" href="{% url 'project-skills-edit' round_slug=project.round.slug community_slug=project.project_round.community.slug project_slug=project.slug %}">Update Project Skills</a>
+		</p>
+		<p class="card-text">
+		<a class="btn btn-primary" href="{% url 'communication-channels-edit' round_slug=project.round.slug community_slug=project.project_round.community.slug project_slug=project.slug %}">Update Communication Channels</a>
+		</p>
+		<p class="card-text">
+		<a class="btn btn-primary" href="{% url 'mentorapproval-invite' round_slug=project.round.slug community_slug=project.project_round.community.slug project_slug=project.slug %}">Invite a co-mentor</a>
+		</p>
+		<p class="card-text">
+		<a class="btn btn-warning" href="{{ project.get_withdraw_url }}">Withdraw Project</a>
+		<hr>
+		<p class="card-text">You can <a href="{{ project.project_round.community.get_preview_url }}">submit or co-mentor another project</a>
+			on the {{ project.project_round.community.name }} community CFP page.</p>
+		<p class="card-text">You can also <a href="{% url 'community-cfp' %}">submit a project for another community</a>.</p>
+	</div>
+</div>

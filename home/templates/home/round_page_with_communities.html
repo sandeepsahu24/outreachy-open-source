@@ -1,0 +1,211 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Outreachy Internships | Apply | Pick a Project
+{% endblock %}
+
+{% block content %}
+{% with mentors_pending_projects=role.pending_mentored_projects %}
+
+{% comment %}Is the round not open yet, and this is a mentor or coordinator?{% endcomment %}
+	{% if not current_round %}
+		<div class="card border-info mb-3">
+			<div class="card-header text-white bg-warning">Applications are currently closed</div>
+			<div class="card-body">
+				<p class="card-text">
+				The Outreachy application period is now closed.
+				You can <a href="https://lists.outreachy.org/cgi-bin/mailman/listinfo/announce">sign up for the announcements mailing list</a>
+				to get an email when initial applications open.
+				</p>
+				<p class="card-text">
+				Outreachy intern selections for the {{ previous_round.official_name }}
+				are announced on the <a href="/alums/">alums</a> page on {{ previous_round.internannounce }} at 4pm UTC.
+				</p>
+			</div>
+		</div>
+	{% elif not role.is_volunteer and not mentors_pending_projects %}
+		{% include "home/snippet/eligibility_prompts.html" %}
+	{% endif %}
+
+<p><a href="/apply/">Why apply to Outreachy?</a>
+&gt; <a href="/apply/eligibility/">Outreachy Eligibility Rules</a>
+&gt; Find a Mentor and Internship Project</p>
+
+{% if current_round %}
+	<h1>Outreachy {{ current_round.internstarts|date:"F Y" }} to {{ current_round.internends|date:"F Y" }} Internships</h1>
+	<h2>Timeline</h2>
+
+	{% include 'home/snippet/round_timeline.html' %}
+{% else %}
+	<h2>Outreachy Internship Timelines</h2>
+
+	<p>Outreachy internships run twice a year.
+	The last Outreachy application period was for the {{ previous_round.official_name }}.
+	You can <a href="{% url 'past-rounds' %}">view projects from all past Outreachy rounds</a>.</p>
+
+	{% include 'home/snippet/generic_timeline.html' %}
+{% endif %}
+
+<h2>Documentation</h2>
+<p><a href='{% url 'docs-applicant' %}#payments'>Applicant guide</a> and <a href='{% url 'docs-internship' %}'>Internship guide</a>. Recommended sections to read:</p>
+<ul>
+	<li><a href='{% url 'docs-internship' %}#payments'>Intern payment schedule</a><br></li>
+	<li><a href='{% url 'docs-applicant' %}#application-prep'>Preparing for the contribution period</a></li>
+	<li><a href="{% url 'docs-applicant' %}#find-mentor">Finding a Mentor and an Internship Project</a></li>
+	<li><a href="{% url 'docs-applicant' %}#make-contributions">Making Contributions</a></li>
+</ul>
+
+{% if ontime_projects %}
+	<div class="card border-info mb-3" id='project-skills-key'>
+		<div class="card-header ">Project skills key</div>
+		<div class="card-body">
+			<p class="card-text">
+			Each project will require a different level of experience with different skills.
+			</p>
+
+			<p class="card-text">
+			<b>Experience level:</b> You do not need to be an expert to apply.
+			Each project will need a different skill experience level:
+			</p>
+			<table class="table">
+				{% for i in example_skill.EXPERIENCE_CHOICES %}
+				<tr>
+					<td><button type="button" class="btn btn-info">{{ forloop.counter }}</button></td>
+					<td>{{ i.1 }}</td>
+				</tr>
+				{% endfor %}
+			</table>
+
+			<p class="card-text">
+			<b>Required skills:</b> You don't need to have all project skills in order to apply.
+			Each project skill will be listed as:
+			</p>
+
+			{% include 'home/snippet/skill_preference_key.html' %}
+
+			<p>If you're unsure whether you have the project skills needed, reach out the mentor via email and ask them. It's better to ask than to not apply!</p>
+		</div>
+	</div>
+	{% if not current_round.contributions_close.has_passed %}
+		<h2 id="open-projects">Outreachy Open Projects</h2>
+		{% with common_skills=current_round.get_common_skills %}
+		{% if common_skills %}
+			<p>Outreachy is offering internship projects in the following areas:
+			<ul>
+				{% for common_skill in common_skills %}
+				{% if common_skill.1 > 2 %}<li>{{ common_skill.0 }} - {{ common_skill.1 }} project{{ common_skill.1|pluralize }}</li>{% endif %}
+				{% endfor %}
+				<li>{% for common_skill in common_skills %}
+					{% if common_skill.1 <= 2 %}{{ common_skill.0 }}, {% endif %}
+					{% endfor %}
+				</li>
+			</ul>
+			</p>
+		{% endif %}
+		{% endwith %}
+
+	{% else %}
+		<h2 id="open-projects">Past Outreachy Projects</h2>
+	{% endif %}
+
+
+	{% if not current_round.contributions_open.has_passed %}
+		<h3>Contributions Begin {{ current_round.contributions_open }} at 4pm UTC</h3>
+
+		<p>This is a preview of the projects which will begin accepting
+		contributions and internship applications on
+		{{ current_round.contributions_open }} at 4pm UTC. You'll be
+		able to see all project details at that point if your initial
+		application has been approved.</p>
+	{% elif not current_round.contributions_close.has_passed %}
+		{% if current_round.pick_a_project_blog_url %}
+			<p>Please also <a href='{{ current_round.pick_a_project_blog_url }}'>read our blog post that lists projects by topic and programming language</a>.</p>
+		{% endif %}
+
+		<h3>Final Applications Due {{ current_round.contributions_close }} at 4pm UTC</h3>
+
+		<p> The following projects are accepting contributions and applications from new
+		applicants until {{ current_round.contributions_close }} at 4pm UTC.</p>
+
+	{% else %}
+		<h3>Final Applications Closed {{ current_round.contributions_close }} at 4pm UTC</h3>
+	{% endif %}
+	<hr>
+
+	{% for participation, projects in ontime_projects %}
+	{% with community=participation.community funded_interns=participation.interns_funded %}
+		<a href="#{{ community.slug }}"><h4 id='{{ community.slug }}'>{{ community.name }} - {{ funded_interns }} intern{{ funded_interns|pluralize }}</h4></a>
+		<p>{{ community.description }}</p>
+		{% if role.is_approved_applicant or role.is_volunteer %}
+			{% if not current_round.contributions_close.has_passed %}
+				<p>Learn how to make a contribution to these internship projects on the
+			{% else %}
+				<p>Learn more about the {{ community.name }} on the
+			{% endif %}
+			<a href="{{ participation.get_absolute_url }}">{{ community.name }} community landing page</a>.</p>
+		{% else %}
+			{% include 'home/snippet/project_hidden.html' %}
+		{% endif %}
+		{% with project_status="" %}
+			{% include 'home/snippet/projects_for_round_page.html' %}
+		{% endwith %}
+		{% if not projects %}
+			<p>No projects listed yet.</p>
+		{% endif %}
+	{% endwith %}
+	{% endfor %}
+{% endif %}
+{% if mentors_pending_projects %}
+	<h2>Your Pending Outreachy Internship Projects</h2>
+
+	<p>
+	Your projects are pending approval by the community coordinator.
+	This is how they will be displayed on this page,
+	once they have been approved and the application round opens.
+	</p>
+
+	{% with project_status="pending " projects=mentors_pending_projects %}
+		{% include 'home/snippet/projects_for_round_page.html' %}
+	{% endwith %}
+{% endif %}
+{% if closed_projects %}
+	{% if not current_round.contributions_close.has_passed %}
+		<h2>Closed Outreachy Internship Projects</h2>
+
+		<p>
+		The projects in this section already have many strong
+		candidates they have worked with. If you are just starting out
+		with the Outreachy application process, we don't suggest you
+		apply for these projects. If you have been working with the
+		project mentors, please continue to work with them. Make sure
+		to submit your in-progress contributions through the community
+		landing page, and complete your final project application.
+		</p>
+	{% else %}
+		<h2>Closed Early - Outreachy Internship Projects</h2>
+		<p>
+		The following projects were closed to new applicants before
+		the final application deadline of {{ current_round.contributions_close }} at 4pm UTC.
+		This typically means the mentors were working with many promising
+		applicants early in the application period. In future rounds,
+		applicants should make sure to start their contributions early
+		to similar projects.
+	{% endif %}
+
+	{% for participation, projects in closed_projects %}
+	{% with community=participation.community %}
+		<h3>{{ community.name }}</h3>
+		<p>{{ community.description }}</p>
+		{% if role.is_approved_applicant or role.is_volunteer %}
+			<p>Document your contributions to these internship projects on the
+			<a href="{{ participation.get_absolute_url }}">{{ community.name }} community landing page</a>.</p>
+		{% endif %}
+		{% with project_status="closed " %}
+			{% include 'home/snippet/projects_for_round_page.html' %}
+		{% endwith %}
+	{% endwith %}
+	{% endfor %}
+{% endif %}
+{% endwith %}
+{% endblock %}

@@ -1,0 +1,36 @@
+<h4>{{ approval.mentor.public_name }}</h4>
+{% if approval.mentor.pronouns_to_participants or approval.mentor.timezone or approval.mentor.location %}
+<p>Personal info:</p>
+<ul>
+	{% if approval.mentor.pronouns_to_participants %}<li>Pronouns: {{ approval.mentor.get_pronouns_html|safe }}</li>{% endif %}
+	{% if approval.mentor.timezone %}<li>Timezone: {{ approval.mentor.get_timezone_display }}</li>{% endif %}
+	{% if approval.mentor.location %}<li>Location: {{ approval.mentor.location }}</li>{% endif %}
+</ul>
+{% endif %}
+<p>Contact info:</p>
+<ul>
+	<li>Personal email: "{{ approval.mentor.public_name }}" &lt;{{ approval.mentor.account.email }}&gt;</li>
+	{% if approval.mentor.nick %}
+		<li>Please try to contact the mentor on public community channels as much as possible. Often other mentors for the project can answer your question or point you in the right direction to get help. They may be able to answer your question faster than emailing your mentor directly. While it's fine to contact mentors privately with doubts, Outreachy applicants and interns will need to learn how to ask questions and work publicly through the community communication channels.</li>
+		<li>Username on community forums or chat: {{ approval.mentor.nick }}</li>
+	{% endif %}
+	{% if approval.mentor.github_url %}<li>GitHub profile: <a href="{{ approval.mentor.github_url }}">{{ approval.mentor.github_url }}</a></li>{% endif %}
+	{% if approval.mentor.gitlab_url %}<li>GitLab profile: <a href="{{ approval.mentor.gitlab_url }}">{{ approval.mentor.gitlab_url }}</a></li>{% endif %}
+	{% if approval.mentor.blog_url %}<li>Blog: <a href="{{ approval.mentor.blog_url }}">{{ approval.mentor.blog_url }}</a></li>{% endif %}
+	{% if approval.mentor.twitter_url %}<li>Twitter profile: <a href="{{ approval.mentor.twitter_url }}">{{ approval.mentor.twitter_url }}</a></li>{% endif %}
+</ul>
+<p>Each Outreachy mentor will have a different mentorship style, a preferred way to contact them, and different ways of working with interns. {{ approval.mentor.public_name}}'s mentorship style is: {{ approval.mentorship_style }}</p>
+<p>
+{% if approval.mentored_before is approval.OUTREACHY %}{{ approval.mentor.public_name}} has mentored for Outreachy in past rounds.
+{% elif approval.mentored_before is approval.GOOGLE_SUMMER_OF_CODE %}{{ approval.mentor.public_name}} has mentored for Google Summer of Code before.
+{% elif approval.mentored_before is approval.RAILS_GIRLS %}{{ approval.mentor.public_name}} has mentored for Rails Girls Summer of Code before.
+{% elif approval.mentored_before is approval.OTHER_MENTOR_PROGRAM %}{{ approval.mentor.public_name}} has volunteered as a mentor for a program other than Outreachy.
+{% elif approval.mentored_before is approval.NOT_MENTORED %}{{ approval.mentor.public_name}} is a first-time mentor for Outreachy.
+{% endif %}
+</p>
+<p>Outreachy mentors are required to be experienced contributors to free and open source software (FOSS).
+{{ approval.mentor.public_name }} has contributed to this team for {{ approval.get_longevity_display|lower }}.
+This mentor has made the following contributions to this team or other FOSS communities: {{ approval.mentor_foss_contributions }}
+</p>
+<p>{% if approval.communication_channel_username %}You'll be able to find this mentor on the FOSS community communication channel under the username: {{ approval.communication_channel_username }}{% else %}The mentor has not provided their username on the FOSS community communication channel.{% endif %}
+</ul>

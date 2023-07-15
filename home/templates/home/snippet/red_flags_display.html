@@ -1,0 +1,10 @@
+{% with red_flags=red_flag_tuple.0 reviewer_name=red_flag_tuple.1 %}
+	{% if red_flags %}
+		<p>{{ reviewer_name }}</p>
+		<ul>
+			{% for r in red_flags %}
+				<li>{{ r }}</li>
+			{% endfor %}
+		</ul>
+	{% endif %}
+{% endwith %}

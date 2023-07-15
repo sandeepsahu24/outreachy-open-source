@@ -1,0 +1,47 @@
+{% extends "base.html" %}
+
+{% load wagtailcore_tags %}
+
+{% block body_class %}template-roundindexpage{% endblock %}
+
+{% block content %}
+
+<p><a href="/apply/">Why apply to Outreachy?</a>
+&gt; <a href="/apply/eligibility/">Outreachy Eligibility Rules</a>
+&gt; <a href="/apply/project-selection/">Find a Mentor and Internship Project</a>
+&gt; Past Outreachy Rounds</a>
+</p>
+
+	<h1>Outreachy {{ page.specific.internstarts|date:"F Y" }} to {{ page.specific.internends|date:"F Y" }} Internships</h1>
+
+	<p>For the current list of internships, <a href="/apply/project-selection">see the current round page</a></p>
+
+	{% with current_round=page.specific %}
+	<h2>Timeline</h2>
+
+	{% include 'home/snippet/round_timeline.html' %}
+	{% endwith %}
+	{% with current_round=page %}
+	<h2>Intern Payment Schedule</h2>
+	{% include 'home/snippet/payment_schedule.html' %}
+	{% endwith %}
+	{{ page.specific.sponsordetails|richtext }}
+
+	{% with communities=page.participation_set.approved %}
+	{% if communities %}
+		<h1>Past Participating Communities</h1>
+		{% for participation in communities %}
+		{% with community=participation.community %}
+			<h4>{{ community.name }}</h4>
+			<p>{{ community.description }}</p>
+			{% if page.internannounce.has_passed %}
+				<p>Learn more on the <a href="{{ participation.get_absolute_url }}">{{ community.name }} community landing page</a>.</p>
+			{% endif %}
+			{% with project_status="closed " current_round=page projects=participation.project_set.approved %}
+				{% include 'home/snippet/projects_for_round_page.html' %}
+			{% endwith %}
+		{% endwith %}
+		{% endfor %}
+	{% endif %}
+	{% endwith %}
+{% endblock %}

@@ -1,0 +1,102 @@
+{% extends "base.html" %} 
+{% block title %}
+Promote Outreachy internships
+{% endblock %}
+
+{% block content %}
+
+<p>Thanks for helping us promote Outreachy internships! This page lists sample tweets, emails, and posters you can use to promote the program.</p>
+
+<p>We welcome translations of our promotional materials into into more languages! <a href="https://github.com/outreachy/creative-works-and-scripts/">Please send a pull request.</a></p>
+
+<h2>Logos</h2>
+
+<p>The Outreachy logo is available in either <a href="https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/outreachy-logo-not-square-no-background.svg">svg</a> or <a href="https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/outreachy-logo-not-square-no-background.png">png</a> format. Please do not recolor the Outreachy logo. We appreciate <a href="{% url 'contact-organizers' %}">being contacted</a> before the Outreachy logo is used in press releases.<br/></p>
+
+<h2>Poster</h2>
+
+<p>Outreachy has various posters available for you to print to promote the program:</p>
+<ul>
+	<li>US letter English poster (<a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/poster-applicants-USletter.pdf'>pdf</a> or <a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/poster-applicants-USletter.svg'>svg</a>)</li>
+	<li>A4 English poster (<a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/poster-applicants-A4.pdf'>pdf</a> or <a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/poster-applicants-A4.svg'>svg</a>)</li>
+	<li>A4 Brazilian Portuguese poster (<a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/poster-applicants-A4-Brasil.pdf'>pdf</a> or <a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/poster-applicants-A4-Brasil.svg'>svg</a>)</li>
+	<li>A3 Brazilian Portuguese poster (<a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/poster-applicants-A3-Brasil.pdf'>pdf</a> or <a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/poster-applicants-A3-Brasil.svg'>svg</a>)</li>
+	<li>English business cards sized to print on moo.com: front (<a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/business-card-sticker-3.5-inch-2-inch-front.pdf'>pdf</a> / <a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/business-card-sticker-3.5-inch-2-inch-front.svg'>svg</a>) and back (<a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/business-card-sticker-3.5-inch-2-inch-back.pdf'>pdf</a> / <a href='https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/business-card-sticker-3.5-inch-2-inch-back.svg'>svg</a>)</li>
+</ul>
+
+<h2>Presentation</h2>
+
+<p>You can use this presentation that introduces open source, Outreachy, and Google Summer of Code: (<a href="https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/open-source-101-gsoc-outreachy.pdf">pdf</a> or <a href="https://github.com/outreachy/creative-works-and-scripts/raw/master/creative-works/open-source-101-gsoc-outreachy.odp">odp</a>)</p>
+
+<h2>Twitter</h2>
+
+<p>Sample tweet:</p>
+
+{% comment %}This template is passed current_round from the date when the community CFP opens and before the initial application deadline has passed.{% endcomment %}
+{% if current_round and not current_round.initial_applications_open.has_passed %}
+<p>Please RT: Outreachy internships are remote, paid ($7,000 stipend), and last three months. Outreachy supports diversity in free and open source software! Initial applications for the @outreachy {{ current_round.internstarts|date:'M Y' }} to {{ current_round.internends|date:'M Y' }} internships will open on {{ current_round.initial_applications_open|date:'M d' }}: https://www.outreachy.org/apply/</p>
+{% elif current_round %}
+<p>Please RT: Outreachy internships are remote, paid ($7,000 stipend), and last three months. Outreachy supports diversity in free and open source software! Initial applications for the @outreachy {{ current_round.internstarts|date:'M Y' }} to {{ current_round.internends|date:'M Y' }} internships are due on {{ current_round.initial_applications_close|date:'M d' }} at 4pm UTC: https://www.outreachy.org/apply/</p>
+{% else %}
+<p>Please RT: Outreachy internships are remote, paid ($7,000), and last three months. Outreachy supports diversity in free and open source software! Outreachy internships run from May to August and December to March. Applications open in January and August: https://www.outreachy.org/apply/</p>
+{% endif %}
+
+<p>Follow up tweets:</p>
+
+<p>Outreachy expressly invites applicants from around the world who are women (both cis and trans), trans men, and genderqueer people. Apply for our internships, which are completely remote, paid ($7,000 stipend), and last three months. https://www.outreachy.org/apply/</p>
+
+<p>Outreachy also expressly invites applications from U.S. residents and nationals of any gender who are Black/African American, Hispanic/Latinx, Native American/American Indian, Alaska Native, Native Hawaiian, or Pacific Islander. https://www.outreachy.org/apply/</p>
+
+<p>Outreachy expressly invites applicants from around the world who face under-representation, systemic bias or discrimination in the technology industry of their country. Apply for our internships, which are completely remote, paid ($7,000 stipend), and last three months. https://www.outreachy.org/apply/</p>
+
+<h2>Email</h2>
+
+<p>Sample email:</p>
+
+<p>I'd like to invite you to apply to an internship program called Outreachy! Outreachy provides three-month internships to work in Free and Open Source Software (FOSS). Outreachy internship projects may include programming, user experience, documentation, illustration and graphical design, or data science. Interns often find employment after their internship with Outreachy sponsors or in jobs that use the skills they learned during their internship.</p>
+
+<p>Outreachy internships run twice a year. The internships run from May to August and December to March.</p>
+
+<p>Interns are paid a stipend of $7,000 USD for the three months of work.</p>
+
+<p>Outreachy internships are completely remote. Outreachy internships are open to applicants around the world. Interns work remotely with experienced mentors.</p>
+
+<p>We expressly invite women (both cis and trans), trans men, and genderqueer people to apply. We also expressly invite applications from residents and nationals of the United States of any gender who are Black/African American, Hispanic/Latin@, Native American/American Indian, Alaska Native, Native Hawaiian, or Pacific Islander. Anyone who faces under-representation, systematic bias, or discrimination in the technology industry of their country is invited to apply.</p>
+
+<p>More details and eligibility criteria can be found here:</p>
+
+<p><a href="https://www.outreachy.org/apply/eligibility/">https://www.outreachy.org/apply/eligibility/</a></p>
+
+{% if current_round and not current_round.initial_applications_open.has_passed %}
+<p>The next Outreachy internship round is from {{ current_round.internstarts }} until {{ current_round.internends }}. Initial applications open on {{ current_round.initial_applications_open }}. Initial applications are due on {{ current_round.initial_applications_close }} at 4pm UTC. Learn about Outreachy's application process:</p>
+{% elif current_round and current_round.initial_applications_open.has_passed and not current_round.initial_applications_close.has_passed %}
+<p>The next Outreachy internship round is from {{ current_round.internstarts }} until {{ current_round.internends }}. Initial applications are currently open. Initial applications are due on {{ current_round.initial_applications_close }} at 4pm UTC. Apply today:</p>
+{% else %}
+<p>Initial applications for Outreachy will open in January and August. Learn more about Outreachy here:</p>
+{% endif %}
+
+<p><a href="https://www.outreachy.org/apply/">https://www.outreachy.org/apply/</a></p>
+
+<p>Applying to Outreachy is a little different than other internship programs. You'll fill out an initial application. If your initial application is approved, you'll move onto the five week contribution phase. During the contribution phase, you'll make contact with project mentors and make a contribution to the project. Outreachy organizers have found that the strongest applicants contact mentors early, ask a lot of questions, and continually submit contributions throughout the contribution phase.</p>
+
+<p>Please let us know if you have any questions about the program. The Outreachy organizers can all be reached at through our contact form: <a href="https://www.outreachy.org/contact/contact-us/">https://www.outreachy.org/contact/contact-us/</a></p>
+
+<p>We hope you'll help us spread the word about Outreachy internships!</p>
+
+<h1 id="outreachychat">#OutreachyChat</h1>
+
+<p>Each round, Outreachy has a Twitter chat to introduce the program. We encourage questions from people interested in applying to Outreachy. We also pose questions for mentors and past Outreachy interns to answer. Applicants are encouraged to ask mentors and past interns questions during and after the chat.</p>
+
+{% if current_round %}
+	<p>The next #OutreachyChat will happen on {{ current_round.outreachy_chat }} UTC. Please double check <a href="{{ current_round.outreachy_chat_timezone_url }}">what time that is in your timezone</a>.</p>
+{% else %}
+	<p>The next #OutreachyChat is not scheduled yet. It's typically run two weeks after the initial application period opens, on a Monday at 4pm UTC / 8am PDT / 11pm EDT / 5pm CET / 9:30pm IST.</p>
+{% endif %}
+
+<p>Here is how the chat will work for applicants, mentors, and past interns:</p>
+
+{% include 'home/snippet/twitter_chat_instructions.html' %}
+
+<p>Mentors and past interns are encouraged to monitor the #OutreachyChat hashtag. This is especially helpful during the first question. If you see an applicant ask a question that you know the answer to, please answer it! This can help the Outreachy organizers who are running the chat answer all applicant questions.</p>
+
+{% endblock %}
