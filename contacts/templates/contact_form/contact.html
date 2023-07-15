@@ -1,0 +1,90 @@
+{% extends "base.html" %}
+{% load static %}
+
+{% block title %}
+Contact Outreachy
+{% endblock %}
+
+{% block content %}
+
+<p>The Outreachy program is comprised of the Outreachy organizers who run the program, and multiple FOSS community coordinators and mentors. Please feel free to reach out to them if you have any questions.</p>
+
+<h2>Outreachy Applicant Help</h2>
+
+<p>Outreachy volunteers are happy to answer questions from Outreachy applicants! If you want to apply to Outreachy or you have a question about applying to Outreachy, please <a href="{% url 'contact-applicant-help' %}">contact Outreachy applicant help</a>.</p>
+
+<h2>Outreachy Organizers</h2>
+
+<p>Please <a href="{% url 'contact-organizers' %}">contact Outreachy organizers</a> for questions relating to sponsorship, community participation, volunteering or mentoring for Outreachy, or to give a <a href="https://github.com/outreachy/website/blob/master/CODE-OF-CONDUCT.md"  target="_blank">Code of Conduct incident report</a>. Coordinators are also available on <a href="https://twitter.com/Outreachy/"  target="_blank">Twitter</a>.</p>
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm">
+			<img src="{% static 'organizers/anna.png' %}" id="Imgborder" class="img-thumbnail float-top mr-3" alt="Photo of Anna" height="200" width="200">
+			<h4>Anna e só</h4>
+			<p>Anna e só is the Outreachy information and process architect. Anna uses they/them pronouns in English, and -/ela/a in Portuguese.</p>
+		</div>
+		<div class="col-sm">
+			<img src="{% static 'organizers/karen.jpg' %}" id="Imgborder" class="img-thumbnail float-top mr-3" alt="Photo of Karen" height="200" width="200">
+			<h4>Karen Sandler</h4>
+			<p>Karen Sandler is the Outreachy grants and sponsorship lead. Karen Sandler is also the Executive Director of <a href="https://www.sfconservancy.org"  target="_blank">Software Freedom Conservancy</a>. Karen uses she/her pronouns.</p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm">
+			<img src="{% static 'organizers/Omotola-square.png' %}" id="Imgborder" class="img-thumbnail float-top mr-3" alt="Photo of Omotola" height="200" width="200">
+			<h4>Omotola Omotayo</h4>
+			<p>Omotola Omotayo is the Outreachy community manager. Omotola is also Community Manager Lead at <a href="https://shecodeafrica.org/" target="_blank">She Code Africa</a>. Omotola uses she/her pronouns.</p>
+		</div>
+		<div class="col-sm">
+			<img src="{% static 'organizers/sage.jpg' %}" id="Imgborder" class="img-thumbnail float-top mr-3" alt="Photo of Sage" height="200" width="200">
+			<h4>Sage Sharp</h4>
+			<p>Sage Sharp is the Outreachy cultural change agent. Sage is also the Senior Director of Diversity and Inclusion at <a href="https://www.sfconservancy.org" target="_blank">Software Freedom Conservancy</a>. Sage is CEO of <a href="https://www.otter.technology" target="_blank">Otter Tech</a>. Sage uses they/them pronouns.</p>
+		</div>
+	</div>
+</div>
+
+
+<h2>Outreachy Leadership Committee</h2>
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm">
+			<img src="{% static 'organizers/karen.jpg' %}" id="Imgborder" class="img-thumbnail float-top mr-3" alt="Photo of Karen" height="200" width="200">
+			<h4>Karen Sandler</h4>
+			<p>Karen Sandler is the Outreachy grants and sponsorship lead. Karen Sandler is also the Executive Director of <a href="https://www.sfconservancy.org" target="_blank">Software Freedom Conservancy</a>. Karen uses she/her pronouns.</p>
+		</div>
+		<div class="col-sm">
+			<img src="{% static 'organizers/tony.jpg' %}" id="Imgborder" class="img-thumbnail float-top mr-3" alt="Photo of Tony is CC BY-SA 4.0 by Myleen Hollero - Myleen Hollero Photography" height="200" width="200">
+			<h4>Tony Sebro</h4>
+			<p>Tony Sebro is General Counsel for <a href="https://www.change.org/" target="_blank">Change.org</a>. Tony uses he/him pronouns.</p><i>Photo of Tony is CC BY-SA 4.0 by Myleen Hollero - Myleen Hollero Photography.</i></p>
+		</div>
+	</div>
+	<div class="row">
+		<div class="col-sm">
+			<img src="{% static 'organizers/sage.jpg' %}" id="Imgborder" class="img-thumbnail float-top mr-3" alt="Photo of Sage" height="200" width="200">
+			<h4>Sage Sharp</h4>
+			<p>Sage Sharp is the Outreachy cultural change agent. Sage is also the Senior Director of Diversity and Inclusion at <a href="https://www.sfconservancy.org" target="_blank">Software Freedom Conservancy</a>. Sage is CEO of <a href="https://www.otter.technology" target="_blank">Otter Tech</a>. Sage uses they/them pronouns.</p>
+		</div>
+		<div class="col-sm">
+		</div>
+	</div>
+</div>
+
+<h2>Outreachy Founder</h2>
+
+<p>We honor Marina Zhurakhinskaya, the founder of Outreachy, who passed on June 11, 2022.</p>
+
+<div class="container">
+	<div class="row">
+		<div class="col-sm">
+			<img src="{% static 'organizers/marina.jpg' %}" id="Imgborder" class="img-thumbnail float-top mr-3" alt="Photo of Sage" height="200" width="200">
+			<h4>Marina Zhurakhinskaya</h4>
+			<p>Marina Zhurakhinskaya was a Senior Outreach Specialist in Community Diversity and Inclusion at Red Hat. Marina used she/her pronouns.</p>
+		</div>
+		<div class="col-sm">
+		</div>
+	</div>
+</div>
+
+{% endblock %}

@@ -1,0 +1,22 @@
+{% extends "base.html" %}
+
+{% block title %}
+Contact Outreachy organizers
+{% endblock %}
+
+{% block content %}
+
+<p>Please contact Outreachy organizers for questions relating to sponsorship, community participation, or mentoring with Outreachy.</p>
+
+{% include "home/snippet/privacy_policy.html" %}
+
+<form method="post" action="">
+{% csrf_token %}
+
+{{ form.as_p }}
+
+<input type="submit" value="Contact Outreachy Organizers" />
+
+</form>
+
+{% endblock %}
